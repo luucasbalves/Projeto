@@ -108,6 +108,19 @@ box-shadow:0 0 25px cyan;
 margin-left:20px;
 }
 
+.skills{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-top:10px;
+}
+
+.skills span{
+padding:8px 14px;
+border:1px solid cyan;
+border-radius:20px;
+font-size:.9rem;
+}
 /* CARDS */
 
 .contact-fixed{
@@ -160,6 +173,7 @@ box-shadow:0 0 25px #25D366;
     transform:translateY(-8px);
     box-shadow:0 0 25px cyan;
     background:rgba(255,255,255,.1); /* Leve destaque no hover */
+    transform:translateY(-8px) scale(1.02);
 }
 
 /* MODAL - Quando o card está aberto */
