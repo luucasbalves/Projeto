@@ -178,6 +178,7 @@ box-shadow:0 0 25px #25D366;
 }
 
 .card {
+    display:none; /* padrão escondido */
     background: rgba(255,255,255,.05);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(0,255,255,.4);
@@ -187,11 +188,8 @@ box-shadow:0 0 25px #25D366;
     opacity:0;
     transform:scale(.8);
     transition:.4s;
-    
-    
-    /* ALTERADO: 'min-height' em vez de 'height' fixo */
+
     min-height: 120px; 
-    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -206,10 +204,9 @@ box-shadow:0 0 25px #25D366;
 }
 
 .card:hover{
-    transform:translateY(-8px);
-    box-shadow:0 0 25px cyan;
-    background:rgba(255,255,255,.1); /* Leve destaque no hover */
     transform:translateY(-8px) scale(1.02);
+    box-shadow:0 0 25px cyan;
+    background:rgba(255,255,255,.1);
 }
 
 /* MODAL - Quando o card está aberto */
@@ -217,8 +214,8 @@ box-shadow:0 0 25px #25D366;
     position:fixed;
     top:50%;
     left:50%;
-    transform:translate(-50%,-50%);
     width:min(700px, 92vw);
+    display:flex;
 
     /* IMPORTANTE: Permite que o card cresça e tenha scroll se o texto for grande */
     height: auto; 
@@ -234,10 +231,9 @@ box-shadow:0 0 25px #25D366;
     /* Alinhamento quando aberto */
     justify-content: flex-start;
     align-items: flex-start;
-
-    animation: boom .5s ease;
     opacity:1;
     transform:scale(1);
+    animation: boom .5s ease;
 }
 
     @keyframes boom{
@@ -248,7 +244,6 @@ box-shadow:0 0 25px #25D366;
     100%{
     transform:translate(-50%,-50%) scale(1);
     opacity:1;
-}
 }
 }
 
@@ -293,12 +288,6 @@ box-shadow:0 0 25px #25D366;
     background: white;
     box-shadow: 0 0 15px white;
 }
-/* tablet */
-@media(max-width:900px){
-.cards{
-grid-template-columns:repeat(2,1fr);
-}
-}
 
 /* celular */
 @media(max-width:520px){
@@ -315,26 +304,6 @@ display:grid;
 grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
 gap:20px;
 margin-top:30px;
-}
-
-.cards.hide .card:not(.open){
-display:none;
-}
-
-.card.open .content{
-opacity:1;
-max-height:500px;
-margin-top:15px;
-}
-
-.close{
-margin-top:20px;g
-padding:10px 20px;
-border:none;
-background:cyan;
-color:black;
-cursor:pointer;
-border-radius:8px;
 }
 
 /* whatsapp */
