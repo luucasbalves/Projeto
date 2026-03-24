@@ -105,21 +105,105 @@ box-shadow:0 0 25px cyan;
 margin-left:20px;
 }
 
-/* cards layout 3x2 */
-.cards{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:20px;
-opacity:0;
-transform:scale(.8);
-transition:.4s;
+/* CARDS */
+
+.card{
+    background:rgba(255,255,255,.05);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(0,255,255,.4);
+    padding:25px;
+    border-radius:16px;
+    cursor:pointer;
+    transition:.35s;
+    
+    /* ADICIONADO: Mantém o card com um tamanho consistente quando fechado */
+    height: 100px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Garante que o conteúdo não vaze */
 }
 
-.cards.show{
-opacity:1;
-transform:scale(1);
+.card-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    color: white;
+    margin: 0;
+    transition: .35s;
 }
 
+.card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 0 25px cyan;
+    background:rgba(255,255,255,.1); /* Leve destaque no hover */
+}
+
+/* MODAL - Quando o card está aberto */
+.card.open{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:min(700px, 92vw);
+    
+    /* IMPORTANTE: Permite que o card cresça e tenha scroll se o texto for grande */
+    height: auto; 
+    max-height: 90vh; 
+    overflow-y: auto; 
+
+    background:#050515;
+    z-index:999;
+    box-shadow:0 0 70px cyan;
+    padding: 40px; /* Mais espaço quando aberto */
+    cursor: default;
+    
+    /* Alinhamento quando aberto */
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+/* Esconde o título quando o card está aberto  */
+.card.open .card-title {
+    opacity: 0;
+    height: 0;
+    margin: 0;
+}
+
+/* Conteúdo interno */
+.content{
+    opacity:0;
+    max-height:0;
+    transition: opacity .4s, max-height 0s .4s; /* Espera a transição do card acabar */
+    overflow:hidden;
+    width: 100%;
+}
+
+/* Mostra o conteúdo quando o card está aberto */
+.card.open .content{
+    opacity:1;
+    max-height: 2000px; /* Valor alto para garantir que todo o texto apareça */
+    margin-top: 0;
+    transition: opacity .4s .3s, max-height 0s; /* Começa a aparecer depois que o card abriu */
+}
+
+/* Ajuste no botão fechar */
+.close{
+    margin-top:30px;
+    padding:12px 24px;
+    border:none;
+    background:cyan;
+    color:black;
+    cursor:pointer;
+    border-radius:8px;
+    font-weight: bold;
+    transition: .2s;
+}
+
+.close:hover {
+    background: white;
+    box-shadow: 0 0 15px white;
+}
 /* tablet */
 @media(max-width:900px){
 .cards{
