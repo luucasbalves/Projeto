@@ -110,6 +110,27 @@ margin-left:20px;
 
 /* CARDS */
 
+.contact-fixed{
+position:fixed;
+right:20px;
+top:50%;
+transform:translateY(-50%);
+background:#25D366;
+color:white;
+padding:15px 20px;
+border-radius:50px;
+text-decoration:none;
+font-weight:bold;
+box-shadow:0 0 15px rgba(0,0,0,.3);
+z-index:1000;
+transition:.3s;
+}
+
+.contact-fixed:hover{
+transform:translateY(-50%) scale(1.1);
+box-shadow:0 0 25px #25D366;
+}
+
 .card {
     background: rgba(255,255,255,.05);
     backdrop-filter: blur(10px);
@@ -148,7 +169,7 @@ margin-left:20px;
     left:50%;
     transform:translate(-50%,-50%);
     width:min(700px, 92vw);
-    
+
     /* IMPORTANTE: Permite que o card cresça e tenha scroll se o texto for grande */
     height: auto; 
     max-height: 90vh; 
@@ -163,6 +184,20 @@ margin-left:20px;
     /* Alinhamento quando aberto */
     justify-content: flex-start;
     align-items: flex-start;
+
+    animation: boom .5s ease;
+}
+
+    @keyframes boom{
+    0%{
+    transform:translate(-50%,-50%) scale(.6);
+    opacity:0;
+    }
+    100%{
+    transform:translate(-50%,-50%) scale(1);
+    opacity:1;
+}
+}
 }
 
 /* Esconde o título quando o card está aberto  */
