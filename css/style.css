@@ -151,15 +151,18 @@ box-shadow:0 0 25px cyan;
 }
 
 /* modal */
-.card.open{
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-width:min(700px,92vw);
-background:#050515;
-z-index:999;
-box-shadow:0 0 70px cyan;
+.card.open {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(700px, 92vw);
+    background: rgba(5, 5, 21, 0.95); 
+    z-index: 999;
+    box-shadow: 0 0 70px rgba(0, 255, 255, 0.5);
+    padding: 40px;
+    border-radius: 20px;
+    cursor: default; 
 }
 
 .cards.hide .card:not(.open){
