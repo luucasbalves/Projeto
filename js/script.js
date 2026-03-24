@@ -22,10 +22,16 @@ const cards=document.getElementById("cards")
 
 back.style.display="none"
 
-explore.onclick=()=>{
-cards.classList.add("show")
-explore.style.display="none"
-back.style.display="inline-block"
+window.onload = () => {
+  setTimeout(() => {
+    loader.style.display = "none"
+    container.classList.remove("hidden")
+
+    // ABRE AUTOMATICAMENTE O CARD SOBRE
+    const firstCard = document.querySelector(".card")
+    firstCard.classList.add("open")
+    cards.classList.add("hide")
+  }, 2000)
 }
 
 back.onclick=()=>location.reload()
