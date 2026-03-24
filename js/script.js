@@ -80,7 +80,7 @@ p.x+=p.dx
 p.y+=p.dy
 ctx.beginPath()
 ctx.arc(p.x,p.y,p.r,0,Math.PI*2)
-ctx.fillStyle="cyan"
+ctx.fillStyle=`rgba(0,255,255,${Math.random()})`
 ctx.fill()
 })
 requestAnimationFrame(animate)
