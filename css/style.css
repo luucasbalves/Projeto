@@ -4,7 +4,9 @@ body{
 font-family:'Inter',sans-serif;
 background:#04040f;
 color:white;
-overflow:hidden;
+overflow-y: auto; 
+overflow-x: hidden;
+min-height: 100vh;
 }
 
 /* loader */
@@ -37,6 +39,7 @@ text-align:center;
 padding:40px 20px;
 max-width:1100px;
 margin:auto;
+padding-bottom: 100px;    
 }
 
 .hidden{
@@ -107,22 +110,21 @@ margin-left:20px;
 
 /* CARDS */
 
-.card{
-    background:rgba(255,255,255,.05);
-    backdrop-filter:blur(10px);
-    border:1px solid rgba(0,255,255,.4);
-    padding:25px;
-    border-radius:16px;
-    cursor:pointer;
-    transition:.35s;
+.card {
+    background: rgba(255,255,255,.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,255,255,.4);
+    padding: 20px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: .35s;
     
-    /* ADICIONADO: Mantém o card com um tamanho consistente quando fechado */
-    height: 100px; 
+    /* ALTERADO: 'min-height' em vez de 'height' fixo */
+    min-height: 120px; 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* Garante que o conteúdo não vaze */
 }
 
 .card-title {
@@ -215,6 +217,7 @@ grid-template-columns:repeat(2,1fr);
 @media(max-width:520px){
 .cards{
 grid-template-columns:1fr;
+min-height: 100px;    
 }
 }
 
