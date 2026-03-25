@@ -17,18 +17,12 @@ function typeWriter(elemento) {
     clearTimeout(typingTimer);
     isTyping = true;
     
-    // Pegamos o texto original (com <br>)
     const textoOriginal = elemento.getAttribute('data-text') || elemento.innerHTML;
-    if (!elemento.getAttribute('data-text')) {
-        elemento.setAttribute('data-text', textoOriginal);
-    }
-
     elemento.innerHTML = '';
     let i = 0;
 
     function digitar() {
         if (i < textoOriginal.length) {
-            // Se encontrar um '<', verifica se é um <br> para pular de uma vez
             if (textoOriginal.slice(i, i + 4) === '<br>') {
                 elemento.innerHTML += '<br>';
                 i += 4;
@@ -36,20 +30,23 @@ function typeWriter(elemento) {
                 elemento.innerHTML += textoOriginal.charAt(i);
                 i++;
                 
-                // SOM POR TECLA: Reseta e toca instantaneamente
+                // CORREÇÃO DO SOM: Criar um pool de áudio simples
                 if (typingSound) {
-                    const soundClone = typingSound.cloneNode(); // Clone permite sobrepor sons
-                    soundClone.volume = 0.2;
-                    soundClone.play().catch(() => {});
+                    let sound = new Audio(typingSound.src);
+                    sound.volume = 0.1; // Som mais baixo fica mais realista
+                    sound.play();
                 }
             }
-            typingTimer = setTimeout(digitar, 30); // Acelerado para 30ms
+            
+            // VELOCIDADE VARIÁVEL: Deixa mais "humano"
+            let velocidade = Math.random() * (50 - 20) + 20; 
+            typingTimer = setTimeout(digitar, velocidade);
         } else {
             isTyping = false;
         }
     }
     digitar();
-
+}
     // PULAR ANIMAÇÃO: Se clicar no card enquanto digita, mostra tudo
     elemento.closest('.card').onclick = () => {
         if (isTyping) {
