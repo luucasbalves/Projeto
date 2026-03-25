@@ -101,6 +101,32 @@ pointer-events:none;
     100% { transform: translate(0); }
 }
 
+/*terminal*/
+
+#terminal {
+    position: fixed;
+    inset: 0;
+    background: black;
+    color: #00ff88;
+    font-family: 'Orbitron', monospace;
+    font-size: 1.2rem;
+    padding: 40px;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+}
+
+.terminal-text::after {
+    content: "|";
+    animation: blink 1s infinite;
+    margin-left: 5px;
+}
+
+@keyframes blink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
 /* Ajuste das fontes da Chuva Digital */
 canvas#particles {
     filter: blur(0.5px); /* Dá um aspecto mais retro/analógico */
@@ -360,10 +386,22 @@ box-shadow:0 0 25px #25D366;
 }
 
     .card.open p {
+    font-family: monospace;
+    color: #00ff88;
+    text-shadow: 0 0 5px #00ff88;    
     border-right: none; /* Sumir com o traço piscando */
     white-space: normal;
     overflow: visible;
     animation: none; 
+}
+
+body.flash {
+    animation: flash 0.15s;
+}
+
+@keyframes flash {
+    0% { background: #00ff88; }
+    100% { background: #04040f; }
 }
 
 #mainBtn {
