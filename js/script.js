@@ -281,14 +281,11 @@ animate();
 
 function startMusic() {
     const iframe = document.getElementById("bgMusic");
+
     if (!iframe) return;
 
-    iframe.src = iframe.src.replace("mute=1", "mute=0");
-
-    document.removeEventListener("click", startMusic);
+    iframe.src = "https://www.youtube.com/embed/p88b7ZNW8Hw?autoplay=1&loop=1&playlist=p88b7ZNW8Hw&controls=0";
 }
-
-document.addEventListener("click", startMusic);
 // --- LOGICA DOS CARDS ---
 function showCard(index, abrirModal = false) {
     stopTyping();
@@ -406,15 +403,101 @@ backBtn.onclick = () => {
 };
 
 // --- LOADER (UNICO) ---
-window.onload = () => {
-    typeTerminal();
+const startBtn = document.getElementById("startBtn");
+const bootScreen = document.getElementById("bootScreen");
+const bootText = document.getElementById("bootText");
+
+const bootLines = [
+"> detecting user...",
+"> initializing system...",
+"> loading modules...",
+"> connecting interface...",
+"> access granted ✔"
+];
+
+let bootIndex = 0;
+
+startBtn.onclick = async () => {
+
+    // 🔊 ativa música
+    startMusic();
+
+    // efeito glitch
+    bootScreen.classList.add("boot-glitch");
+
     setTimeout(() => {
-        loader.style.opacity = "0";
-        setTimeout(() => {
-            loader.style.display = "none";
-            container.classList.remove("hidden");
+        bootScreen.classList.remove("boot-glitch");
+    }, 200);
+
+    // some botão
+    startBtn.style.display = "none";
+
+    // começa boot fake
+    typeBoot();
+};
+
+function typeBoot(){
+    if(bootIndex < bootLines.length){
+
+        let line = bootLines[bootIndex];
+        let i = 0;
+
+        let interval = setInterval(()=>{
+
+            bootText.innerHTML += line.charAt(i);
+            i++;
+
+            if(i >= line.length){
+                clearInterval(interval);
+                bootText.innerHTML += "<br>";
+                bootIndex++;
+                setTimeout(typeBoot, 300);
+            }
+
+        }, 30);
+
+    } else {
+
+        setTimeout(()=>{
+            enterSite();
         }, 500);
-    }, 2500);
+    }
+}
+
+function enterSite(){
+
+    bootScreen.style.opacity = "0";
+
+    setTimeout(()=>{
+        bootScreen.style.display = "none";
+
+        container.classList.remove("hidden");
+
+        // agora sim inicia seu terminal
+        typeTerminal();
+
+    },500);
+}
+const startBtn = document.getElementById("startBtn");
+
+startBtn.onclick = () => {
+
+    // 🔊 ativa música (desbloqueia autoplay)
+    startMusic();
+
+    // efeito visual
+    loader.style.opacity = "0";
+
+    setTimeout(() => {
+        loader.style.display = "none";
+
+        // mostra conteúdo
+        container.classList.remove("hidden");
+
+        // inicia terminal AGORA (não antes)
+        typeTerminal();
+
+    }, 500);
 };
 
 window.addEventListener("resize", () => {
