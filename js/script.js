@@ -401,35 +401,23 @@ backBtn.onclick = () => {
 // --- LOADER (UNICO) ---
 const startBtn = document.getElementById("startBtn");
 const bootScreen = document.getElementById("bootScreen");
-const bootText = document.getElementById("bootText");
-
-const bootLines = [
-"> iniciando sistema...",
-"> carregando módulos...",
-"> acessando perfil...",
-"> acesso autorizado ✔",
-"> Seja bem-vindo ao meu mundo!"
-];
-
 let bootIndex = 0;
 
 startBtn.onclick = async () => {
 
-    // 🔊 ativa música
     startMusic();
 
-    // efeito glitch
     bootScreen.classList.add("boot-glitch");
 
     setTimeout(() => {
         bootScreen.classList.remove("boot-glitch");
     }, 200);
 
-    // some botão
     startBtn.style.display = "none";
 
-    // começa boot fake
-    typeBoot();
+    setTimeout(() => {
+        enterSite();
+    }, 600);
 };
 
 function typeBoot(){
