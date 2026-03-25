@@ -57,7 +57,7 @@ function typeTerminal() {
             terminalText.innerHTML += lines[lineIndex].charAt(charIndex);
             charIndex++;
 
-            playTypingSound(velocidade);
+            playTypingSound();
             
             setTimeout(typeTerminal, 30);
 
@@ -164,17 +164,40 @@ function typeWriter(elemento) {
 
     elemento.innerHTML = '';
     elemento.classList.add("typing");
+
     let i = 0;
 
     function digitar() {
-        if (i >= textoOriginal.length) {
-    isTyping = false;
-    return;
-}
         if (!elemento.isConnected) return;
 
-        // 🔥 ERRO HUMANO REAL
-        if (Math.random() < 0.07 && i > 5 && i < textoOriginal.length) {
+        // 🔥 FINALIZAÇÃO SEGURA
+        if (i >= textoOriginal.length) {
+            isTyping = false;
+            stopTyping();
+            elemento.classList.remove("typing");
+            return;
+        }
+
+        // 🔥 VELOCIDADE HUMANA (ANTES de usar!)
+        let progresso = i / textoOriginal.length;
+        let velocidade;
+
+        if (progresso < 0.2) {
+            velocidade = Math.random() * 80 + 80;
+        } else if (progresso < 0.8) {
+            velocidade = Math.random() * 40 + 20;
+        } else {
+            velocidade = Math.random() * 80 + 60;
+        }
+
+        if (Math.random() < 0.08) velocidade += 120;
+
+        // 🔥 ERRO HUMANO
+        if (
+        Math.random() < 0.07 &&
+        i > 5 &&
+        textoOriginal.slice(i, i + 4) !== '<br>'
+        ) {
 
             const letraCorreta = textoOriginal.charAt(i);
             const letraErrada = getTypo(letraCorreta);
@@ -182,20 +205,16 @@ function typeWriter(elemento) {
             elemento.innerHTML += letraErrada;
             playTypingSound(velocidade);
 
-            // pausa "pensando"
             setTimeout(() => {
-
-                // apaga erro
                 elemento.innerHTML = elemento.innerHTML.slice(0, -1);
 
                 setTimeout(() => {
-                    // digita correto
                     elemento.innerHTML += letraCorreta;
                     i++;
 
                     playTypingSound(velocidade);
 
-                    setTimeout(digitar, 60);
+                    typingTimer = setTimeout(digitar, velocidade);
                 }, 120);
 
             }, 180);
@@ -213,44 +232,14 @@ function typeWriter(elemento) {
             playTypingSound(velocidade);
         }
 
-        // 🔥 VELOCIDADE HUMANA (varia)
-        // progresso da digitação (0 → 1)
-let progresso = i / textoOriginal.length;
-
-let velocidade;
-
-// início lento (pensando)
-if (progresso < 0.2) {
-    velocidade = Math.random() * 80 + 80;
-}
-// meio rápido (fluxo)
-else if (progresso < 0.8) {
-    velocidade = Math.random() * 40 + 20;
-}
-// final desacelera (precisão)
-else {
-    velocidade = Math.random() * 80 + 60;
-}
-
-// pausas humanas aleatórias
-if (Math.random() < 0.08) velocidade += 120;
-
         typingTimer = setTimeout(digitar, velocidade);
-
-        if (i < textoOriginal.length) {
-    typingTimer = setTimeout(digitar, velocidade);
-} else {
-    isTyping = false;
-    stopTyping(); // 🔥 garante que tudo para
-    elemento.classList.remove("typing"); 
-}
-        }
     }
 
     elemento.onclick = () => {
         if (isTyping) {
             stopTyping();
             elemento.innerHTML = textoOriginal;
+            elemento.classList.remove("typing");
         }
     };
 
@@ -334,6 +323,7 @@ function showCard(index, abrirModal = false) {
                 if (p) {
                     stopTyping();
                     p.innerHTML = p.getAttribute('data-text');
+                    p.classList.remove("typing");
                 }
             }
         }, { once: true });
