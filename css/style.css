@@ -193,6 +193,15 @@ box-shadow:0 0 25px #25D366;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    display: none; 
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card.active {
+    display: flex;
+    opacity: 1;
+    transform: scale(1);
 }
 
 .card-title {
@@ -212,20 +221,22 @@ box-shadow:0 0 25px #25D366;
 /* MODAL - Quando o card está aberto */
 .card.open{
     position:fixed;
+    display: flex;
     top:50%;
     left:50%;
-    transform: translate(-50%, -50%); 
+    transform: translate(-50%, -50%) scale(1); 
     will-change: transform;
 
-    width:min(700px, 92vw);
-    display:flex;
+    width: min(600px, 90vw);
     height:auto; 
     max-height:90vh; 
     overflow-y:auto; 
 
-    background:#050515;
-    z-index:999;
-    box-shadow:0 0 70px cyan;
+    background: rgba(10, 10, 25, 0.95);
+    backdrop-filter: blur(20px);
+    z-index: 2000;
+    border: 2px solid cyan;
+    box-shadow: 0 0 50px rgba(0, 255, 255, 0.3);
     padding:40px;
     cursor:default;
 
@@ -235,6 +246,13 @@ box-shadow:0 0 25px #25D366;
     animation: boom .5s ease;
 }
 
+    .card.open p {
+    border-right: 2px solid cyan;
+    white-space: normal;
+    overflow: hidden;
+    animation: typing 2s steps(40, end), blink .75s step-end infinite;
+}
+    @keyframes blink { from, to { border-color: transparent } 50% { border-color: cyan } }
     @keyframes boom{
     0%{
     transform:translate(-50%,-50%) scale(.6);
