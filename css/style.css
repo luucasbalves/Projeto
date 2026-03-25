@@ -117,13 +117,14 @@ pointer-events:none;
 #terminal {
     position: fixed;
     inset: 0;
-    background: black;
+    background: rgba(0, 0, 0, 0.7); /* 👈 transparência */
+    backdrop-filter: blur(4px);     /* 👈 efeito premium */
     color: #00ff88;
     font-family: 'Orbitron', monospace;
     font-size: 1.2rem;
     padding: 40px;
     z-index: 10000;
-     display: none;
+    display: none;
     align-items: center;
 }
 
