@@ -124,7 +124,7 @@ function typeWriter(elemento) {
         if (!elemento.isConnected) return;
 
         // 🔥 chance de erro humano
-        if (Math.random() < 0.05 && i > 5) {
+       if (Math.random() < 0.08 && i > 8) {
             elemento.innerHTML += textoOriginal.charAt(i);
             i++;
 
@@ -204,16 +204,11 @@ function animate() {
 animate();
 
 function startAmbient() {
-    ambientSound.play().catch(()=>{});
-    document.removeEventListener("click", startAmbient);
-}
-
-function startAmbient() {
     if (!ambientSound.paused) return;
     ambientSound.play().catch(()=>{});
     document.removeEventListener("click", startAmbient);
 }
-
+document.addEventListener("click", startAmbient);
 // --- LOGICA DOS CARDS ---
 function showCard(index, abrirModal = false) {
     stopTyping();
@@ -273,7 +268,7 @@ if (scanLine) {
 document.querySelectorAll(".btn, .card").forEach(el => {
     el.addEventListener("mouseenter", () => {
         const now = Date.now();
-        if (now - lastHoverTime < 100) return;
+        if (now - lastHoverTime < 200) return;
 
         hoverSound.currentTime = 0;
         hoverSound.play().catch(()=>{});
