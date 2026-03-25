@@ -100,6 +100,7 @@ animate();
 
 // --- LOGICA DOS CARDS ---
 function showCard(index, abrirModal = false) {
+    clearTimeout(typingTimer);
     allCards.forEach(card => card.classList.remove("open"));
     if (abrirModal) {
         matrixMode = true;
