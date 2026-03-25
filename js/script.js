@@ -102,7 +102,8 @@ animate();
 function showCard(index, abrirModal = false) {
     allCards.forEach(card => card.classList.remove("open"));
     if (abrirModal) {
-        matrixMode = true; 
+        matrixMode = true;
+        container.classList.add("matrix-glitch"); setTimeout(() => container.classList.remove("matrix-glitch"), 200);
         const cardAlvo = allCards[index];
         cardAlvo.classList.add("open");
 
