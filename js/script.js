@@ -279,11 +279,15 @@ function animate() {
 animate();
 
 function startMusic() {
-    const iframe = document.getElementById("bgMusic");
+    const audio = document.getElementById("bgMusic");
 
-    if (!iframe) return;
+    if (!audio) return;
 
-    iframe.src = "https://www.youtube.com/embed/p88b7ZNW8Hw?autoplay=1&loop=1&playlist=p88b7ZNW8Hw&controls=0";
+    audio.volume = 0.3;
+
+    audio.play().catch(() => {
+        console.log("Autoplay bloqueado pelo navegador");
+    });
 }
 // --- LOGICA DOS CARDS ---
 function showCard(index, abrirModal = false) {
