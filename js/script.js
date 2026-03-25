@@ -2,86 +2,120 @@
 const loader = document.getElementById("loader");
 const container = document.querySelector(".container");
 const mainBtn = document.getElementById("mainBtn");
+const backBtn = document.getElementById("backBtn");
 const allCards = document.querySelectorAll(".card");
 const closeButtons = document.querySelectorAll(".close");
+const typingSound = document.getElementById("typing-sound");
+
 let current = 0;
+let typingTimer;
+let matrixMode = false; // Controle da cor das partículas
 
-// Função para o efeito de Digitação (Typewriter)
-let typingTimer; // Variável para controlar o tempo
-
+// 1. EFEITO DE DIGITAÇÃO REALISTA COM SOM
 function typeWriter(elemento) {
-    // Se já tiver uma digitação rolando, a gente para ela antes de começar a nova
-    clearTimeout(typingTimer); 
-    
+    clearTimeout(typingTimer);
     const textoOriginal = elemento.getAttribute('data-text') || elemento.innerHTML;
-    // Salva o texto original para não perder as tags HTML (como <br>)
+    
     if (!elemento.getAttribute('data-text')) {
         elemento.setAttribute('data-text', textoOriginal);
     }
 
     elemento.innerHTML = '';
+    let i = 0;
     const caracteres = textoOriginal.split('');
+
+    function digitar() {
+        if (i < caracteres.length) {
+            elemento.innerHTML += caracteres[i];
+            
+            // Toca o som de tecla (reseta o tempo para tocar rápido)
+            if (typingSound) {
+                typingSound.currentTime = 0;
+                typingSound.play().catch(() => {}); // Catch evita erro de política de browser
+            }
+
+            i++;
+            typingTimer = setTimeout(digitar, 60); // Velocidade humana real
+        }
+    }
+    digitar();
+}
+
+// 2. EFEITO TERMINAL PARA SKILLS
+function skillTerminal() {
+    const skillsContainer = document.querySelector(".skills");
+    const spans = skillsContainer.querySelectorAll("span");
     
-    caracteres.forEach((letra, i) => {
-        typingTimer = setTimeout(() => {
-            elemento.innerHTML += letra;
-        }, 15 * i);
+    // Esconde todas primeiro
+    spans.forEach(s => s.style.opacity = "0");
+    
+    spans.forEach((span, index) => {
+        setTimeout(() => {
+            span.style.opacity = "1";
+            span.style.transition = "0.3s";
+            // Adiciona um prefixo de terminal "> " temporário
+            console.log(`Loading module: ${span.innerText}... OK`);
+        }, 300 * index);
     });
 }
 
-// Função Principal de Mostrar Card
+// MOSTRAR CARD (MODO MATRIX)
 function showCard(index, abrirModal = false) {
-    allCards.forEach(card => card.classList.remove("active", "open"));
-    
-    const cardAlvo = allCards[index];
-    cardAlvo.classList.add("active");
+    allCards.forEach(card => card.classList.remove("open"));
 
     if (abrirModal) {
+        // Ativa o Modo Matrix (Muda cor das partículas)
+        matrixMode = true; 
+        
+        const cardAlvo = allCards[index];
         cardAlvo.classList.add("open");
-        const paragrafo = cardAlvo.querySelector("p");
-        
-        // Se for o card de contato, adiciona animação no botão de Whats
-        if (index === 5) { // Index do card de Contato
-            const wppBtn = cardAlvo.querySelector(".wpp");
-            wppBtn.classList.add("wpp-animation");
+
+        // Diferencia se é Skill ou Texto comum
+        if (index === 1) { // Card de Skills
+            skillTerminal();
+        } else {
+            const paragrafo = cardAlvo.querySelector("p");
+            if (paragrafo) typeWriter(paragrafo);
         }
-        
-        // Dispara o efeito de escrever se houver parágrafo
-        if (paragrafo) {
-            typeWriter(paragrafo);
+
+        if (index === 5) {
+            const wppBtn = cardAlvo.querySelector(".wpp");
+            if (wppBtn) wppBtn.classList.add("wpp-animation");
         }
     }
 }
 
 /* --- EVENTOS --- */
 
-// Botão Inicial
-mainBtn.addEventListener("click", () => {
+mainBtn.onclick = () => {
     current = 0;
     showCard(current, true);
-});
+};
 
-// Botão Próximo
 document.getElementById("next").onclick = () => {
     current = (current + 1) % allCards.length;
     showCard(current, true);
 };
 
-// Botão Anterior
 document.getElementById("prev").onclick = () => {
     current = (current - 1 + allCards.length) % allCards.length;
     showCard(current, true);
 };
 
-// Botão Fechar
+backBtn.onclick = () => {
+    container.classList.add("hidden");
+    loader.style.display = "flex";
+    setTimeout(() => window.location.reload(), 800);
+};
+
 closeButtons.forEach(btn => {
-    btn.addEventListener("click", (e) => {
+    btn.onclick = (e) => {
         e.stopPropagation();
-        btn.closest(".card").classList.remove("open");
-    });
+        allCards.forEach(c => c.classList.remove("open"));
+        matrixMode = false; // Volta a cor original
+    };
 });
 
-// Loader Inicial
 window.onload = () => {
     setTimeout(() => {
         loader.style.display = "none";
@@ -89,22 +123,20 @@ window.onload = () => {
     }, 2000);
 };
 
-// Lógica das Partículas (Mantenha o seu código de partículas original aqui embaixo)
-/* --- PARTICULAS (BACKGROUND) --- */
+/* --- PARTICULAS COM MUDANÇA DE COR --- */
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let particles = [];
-for (let i = 0; i < 70; i++) {
+for (let i = 0; i < 80; i++) {
     particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         r: Math.random() * 2,
-        dx: (Math.random() - 0.5) * 0.5,
-        dy: (Math.random() - 0.5) * 0.5
+        dx: (Math.random() - 0.5) * 0.8,
+        dy: (Math.random() - 0.5) * 0.8
     });
 }
 
@@ -118,7 +150,10 @@ function animate() {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 255, 255, ${0.3 + Math.random() * 0.5})`;
+        
+        // Efeito Matrix: Se um card estiver aberto, fica verde. Senão, ciano.
+        ctx.fillStyle = matrixMode ? "rgba(0, 255, 70, 0.6)" : "rgba(0, 255, 255, 0.5)";
+        
         ctx.fill();
     });
     requestAnimationFrame(animate);
