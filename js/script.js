@@ -289,7 +289,6 @@ function startMusic() {
 }
 
 document.addEventListener("click", startMusic);
-document.addEventListener("click", startAmbient);
 // --- LOGICA DOS CARDS ---
 function showCard(index, abrirModal = false) {
     stopTyping();
@@ -406,18 +405,8 @@ backBtn.onclick = () => {
     setTimeout(() => window.location.reload(), 800);
 };
 
-function startMusic() {
-    const iframe = document.getElementById("bgMusic");
-    iframe.src = iframe.src.replace("mute=1", "mute=0");
-
-    document.removeEventListener("click", startMusic);
-}
-
-document.addEventListener("click", startMusic);
-
 // --- LOADER (UNICO) ---
 window.onload = () => {
-    startAmbient();
     typeTerminal();
     setTimeout(() => {
         loader.style.opacity = "0";
