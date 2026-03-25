@@ -57,8 +57,7 @@ function typeTerminal() {
             terminalText.innerHTML += lines[lineIndex].charAt(charIndex);
             charIndex++;
 
-            play
-                TypingSound();
+            playTypingSound();
             
             setTimeout(typeTerminal, 30);
 
