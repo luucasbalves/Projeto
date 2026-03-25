@@ -279,18 +279,16 @@ function animate() {
 }
 animate();
 
-function startAmbient() {
-    ambientSound.volume = 0.03;
+function startMusic() {
+    const iframe = document.getElementById("bgMusic");
+    if (!iframe) return;
 
-    ambientSound.play().then(() => {
-        // já tocou
-    }).catch(() => {
-        // tenta de novo no primeiro clique
-        document.addEventListener("click", () => {
-            ambientSound.play().catch(()=>{});
-        }, { once: true });
-    });
+    iframe.src = iframe.src.replace("mute=1", "mute=0");
+
+    document.removeEventListener("click", startMusic);
 }
+
+document.addEventListener("click", startMusic);
 document.addEventListener("click", startAmbient);
 // --- LOGICA DOS CARDS ---
 function showCard(index, abrirModal = false) {
