@@ -5,6 +5,8 @@ const mainBtn = document.getElementById("mainBtn");
 const backBtn = document.getElementById("backBtn");
 const allCards = document.querySelectorAll(".card");
 const closeButtons = document.querySelectorAll(".close");
+const swipeSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
+swipeSound.volume = 0.2;
 
 let current = 0;
 let typingTimer;
@@ -39,20 +41,36 @@ function playTypingSound() {
     } catch(e){}
 }
 
+function stopTyping() {
+    clearTimeout(typingTimer);
+    isTyping = false;
+
+    // para TODOS os áudios
+    audioPool.forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+    });
+}
+
 // --- EFEITO DE DIGITAÇÃO ---
 function typeWriter(elemento) {
     clearTimeout(typingTimer);
     isTyping = true;
-    
+
     const textoOriginal = elemento.getAttribute('data-text') || elemento.innerHTML;
-    if (!elemento.getAttribute('data-text')) elemento.setAttribute('data-text', textoOriginal);
+
+    if (!elemento.getAttribute('data-text')) {
+        elemento.setAttribute('data-text', textoOriginal);
+    }
 
     elemento.innerHTML = '';
     let i = 0;
 
     function digitar() {
         if (!elemento.isConnected) return;
+
         if (i < textoOriginal.length) {
+
             if (textoOriginal.slice(i, i + 4) === '<br>') {
                 elemento.innerHTML += '<br>';
                 i += 4;
@@ -61,12 +79,23 @@ function typeWriter(elemento) {
                 i++;
                 playTypingSound();
             }
-            let velocidade = Math.random() * (90 - 40) + 40;
+
+            let velocidade = Math.random() * 50 + 40;
             typingTimer = setTimeout(digitar, velocidade);
+
         } else {
             isTyping = false;
         }
     }
+
+    // 🔥 NOVO: clique para pular animação
+    elemento.onclick = () => {
+        if (isTyping) {
+            stopTyping();
+            elemento.innerHTML = textoOriginal;
+        }
+    };
+
     digitar();
 }
 
@@ -100,18 +129,24 @@ animate();
 
 // --- LOGICA DOS CARDS ---
 function showCard(index, abrirModal = false) {
-    clearTimeout(typingTimer);
+    stopTyping(); // 🔥 garante limpeza total
+    swipeSound.currentTime = 0;
+    swipeSound.play().catch(()=>{});
+
     allCards.forEach(card => card.classList.remove("open"));
+
     if (abrirModal) {
         matrixMode = true;
         container.classList.add("matrix-glitch");
+
         setTimeout(() => container.classList.remove("matrix-glitch"), 200);
-        
+
         const cardAlvo = allCards[index];
         cardAlvo.classList.add("open");
-        
+
         const paragrafo = cardAlvo.querySelector("p");
         if (paragrafo) typeWriter(paragrafo);
+
         if (index === 1) skillTerminal();
     }
 }
@@ -146,6 +181,9 @@ document.getElementById("prev").onclick = () => {
 closeButtons.forEach(btn => {
     btn.onclick = (e) => {
         e.stopPropagation();
+
+        stopTyping(); // 🔥 IMPORTANTE
+
         allCards.forEach(c => c.classList.remove("open"));
         matrixMode = false;
     };
