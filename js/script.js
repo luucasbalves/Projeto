@@ -9,88 +9,114 @@ const typingSound = document.getElementById("typing-sound");
 
 let current = 0;
 let typingTimer;
-let matrixMode = false; // Controle da cor das partículas
+let isTyping = false;
+let matrixMode = false;
 
-// 1. EFEITO DE DIGITAÇÃO REALISTA COM SOM
+// 1. EFEITO DE DIGITAÇÃO MELHORADO (CORRIGE <BR> E PULA ANIMAÇÃO)
 function typeWriter(elemento) {
     clearTimeout(typingTimer);
-    const textoOriginal = elemento.getAttribute('data-text') || elemento.innerHTML;
+    isTyping = true;
     
+    // Pegamos o texto original (com <br>)
+    const textoOriginal = elemento.getAttribute('data-text') || elemento.innerHTML;
     if (!elemento.getAttribute('data-text')) {
         elemento.setAttribute('data-text', textoOriginal);
     }
 
     elemento.innerHTML = '';
     let i = 0;
-    const caracteres = textoOriginal.split('');
 
     function digitar() {
-        if (i < caracteres.length) {
-            elemento.innerHTML += caracteres[i];
-            
-            // Toca o som de tecla (reseta o tempo para tocar rápido)
-            if (typingSound) {
-                typingSound.currentTime = 0;
-                typingSound.play().catch(() => {}); // Catch evita erro de política de browser
+        if (i < textoOriginal.length) {
+            // Se encontrar um '<', verifica se é um <br> para pular de uma vez
+            if (textoOriginal.slice(i, i + 4) === '<br>') {
+                elemento.innerHTML += '<br>';
+                i += 4;
+            } else {
+                elemento.innerHTML += textoOriginal.charAt(i);
+                i++;
+                
+                // SOM POR TECLA: Reseta e toca instantaneamente
+                if (typingSound) {
+                    const soundClone = typingSound.cloneNode(); // Clone permite sobrepor sons
+                    soundClone.volume = 0.2;
+                    soundClone.play().catch(() => {});
+                }
             }
-
-            i++;
-            typingTimer = setTimeout(digitar, 60); // Velocidade humana real
+            typingTimer = setTimeout(digitar, 30); // Acelerado para 30ms
+        } else {
+            isTyping = false;
         }
     }
     digitar();
+
+    // PULAR ANIMAÇÃO: Se clicar no card enquanto digita, mostra tudo
+    elemento.closest('.card').onclick = () => {
+        if (isTyping) {
+            clearTimeout(typingTimer);
+            elemento.innerHTML = textoOriginal;
+            isTyping = false;
+        }
+    };
 }
 
-// 2. EFEITO TERMINAL PARA SKILLS
-function skillTerminal() {
-    const skillsContainer = document.querySelector(".skills");
-    const spans = skillsContainer.querySelectorAll("span");
-    
-    // Esconde todas primeiro
-    spans.forEach(s => s.style.opacity = "0");
-    
-    spans.forEach((span, index) => {
-        setTimeout(() => {
-            span.style.opacity = "1";
-            span.style.transition = "0.3s";
-            // Adiciona um prefixo de terminal "> " temporário
-            console.log(`Loading module: ${span.innerText}... OK`);
-        }, 300 * index);
+// 2. FUNDO DIGITAL RAIN (0 e 1)
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const chars = "01";
+const fontSize = 16;
+const columns = canvas.width / fontSize;
+const drops = Array(Math.floor(columns)).fill(1);
+
+function drawMatrix() {
+    // Fundo semitransparente para criar o rastro
+    ctx.fillStyle = "rgba(4, 4, 15, 0.1)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Cor base (Ciano no início, Verde no Matrix Mode)
+    ctx.fillStyle = matrixMode ? "#00ff46" : "#00ffff";
+    ctx.font = fontSize + "px Orbitron";
+
+    drops.forEach((y, i) => {
+        const text = chars.charAt(Math.floor(Math.random() * chars.length));
+        ctx.fillText(text, i * fontSize, y * fontSize);
+
+        if (y * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+        }
+        drops[i]++;
     });
 }
 
-// MOSTRAR CARD (MODO MATRIX)
+function animate() {
+    drawMatrix();
+    requestAnimationFrame(animate);
+}
+animate();
+
+// 3. LOGICA DOS CARDS
 function showCard(index, abrirModal = false) {
     allCards.forEach(card => card.classList.remove("open"));
-
     if (abrirModal) {
-        // Ativa o Modo Matrix (Muda cor das partículas)
         matrixMode = true; 
-        
         const cardAlvo = allCards[index];
         cardAlvo.classList.add("open");
 
-        // Diferencia se é Skill ou Texto comum
-        if (index === 1) { // Card de Skills
+        if (index === 1) {
             skillTerminal();
         } else {
             const paragrafo = cardAlvo.querySelector("p");
             if (paragrafo) typeWriter(paragrafo);
         }
-
-        if (index === 5) {
-            const wppBtn = cardAlvo.querySelector(".wpp");
-            if (wppBtn) wppBtn.classList.add("wpp-animation");
-        }
     }
 }
 
 /* --- EVENTOS --- */
-
-mainBtn.onclick = () => {
-    current = 0;
-    showCard(current, true);
-};
+mainBtn.onclick = () => showCard(0, true);
 
 document.getElementById("next").onclick = () => {
     current = (current + 1) % allCards.length;
@@ -112,7 +138,7 @@ closeButtons.forEach(btn => {
     btn.onclick = (e) => {
         e.stopPropagation();
         allCards.forEach(c => c.classList.remove("open"));
-        matrixMode = false; // Volta a cor original
+        matrixMode = false;
     };
 });
 
@@ -123,44 +149,19 @@ window.onload = () => {
     }, 2000);
 };
 
-/* --- PARTICULAS COM MUDANÇA DE COR --- */
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let particles = [];
-for (let i = 0; i < 80; i++) {
-    particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2,
-        dx: (Math.random() - 0.5) * 0.8,
-        dy: (Math.random() - 0.5) * 0.8
-    });
-}
-
-function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => {
-        p.x += p.dx;
-        p.y += p.dy;
-        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        
-        // Efeito Matrix: Se um card estiver aberto, fica verde. Senão, ciano.
-        ctx.fillStyle = matrixMode ? "rgba(0, 255, 70, 0.6)" : "rgba(0, 255, 255, 0.5)";
-        
-        ctx.fill();
-    });
-    requestAnimationFrame(animate);
-}
-animate();
-
 window.addEventListener("resize", () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 });
+
+function skillTerminal() {
+    const skillsContainer = document.querySelector(".skills");
+    const spans = skillsContainer.querySelectorAll("span");
+    spans.forEach(s => s.style.opacity = "0");
+    spans.forEach((span, index) => {
+        setTimeout(() => {
+            span.style.opacity = "1";
+            span.style.transition = "0.3s";
+        }, 200 * index);
+    });
+}
