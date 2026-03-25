@@ -247,11 +247,22 @@ box-shadow:0 0 25px #25D366;
 }
 
     .card.open p {
-    border-right: 2px solid cyan;
+    border-right: none; /* Sumir com o traço piscando */
     white-space: normal;
-    overflow: hidden;
-    animation: typing 2s steps(40, end), blink .75s step-end infinite;
+    overflow: visible;
+    animation: none; 
 }
+
+@keyframes pulseWpp {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+.wpp-animation {
+    animation: pulseWpp 2s infinite;
+}
+
     @keyframes blink { from, to { border-color: transparent } 50% { border-color: cyan } }
     @keyframes boom{
     0%{
@@ -266,9 +277,13 @@ box-shadow:0 0 25px #25D366;
 
 /* Esconde o título quando o card está aberto  */
 .card.open .card-title {
-    opacity: 0;
-    height: 0;
-    margin: 0;
+    opacity: 1 !important;
+    height: auto !important;
+    margin-bottom: 20px !important;
+    font-size: 1.5rem;
+    border-bottom: 1px solid cyan;
+    padding-bottom: 10px;
+    width: 100%;
 }
 
 /* Conteúdo interno */
