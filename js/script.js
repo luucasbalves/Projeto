@@ -20,13 +20,22 @@ for (let i = 0; i < poolSize; i++) {
     audioPool.push(new Audio(typingSoundSrc));
 }
 
-let currentAudio = 0;
+let lastSoundTime = 0;
+
 function playTypingSound() {
+    const now = Date.now();
+
+    // só toca a cada 80ms
+    if (now - lastSoundTime < 80) return;
+
     const sound = audioPool[currentAudio];
-    sound.volume = 0.15;
-    sound.currentTime = 0; 
+    sound.volume = 0.1;
+
+    sound.currentTime = 0;
     sound.play().catch(() => {});
+
     currentAudio = (currentAudio + 1) % poolSize;
+    lastSoundTime = now;
 }
 
 // --- EFEITO DE DIGITAÇÃO ---
@@ -50,7 +59,7 @@ function typeWriter(elemento) {
                 i++;
                 playTypingSound();
             }
-            let velocidade = Math.random() * (40 - 15) + 15;
+            let velocidade = Math.random() * (90 - 40) + 40;
             typingTimer = setTimeout(digitar, velocidade);
         } else {
             isTyping = false;
