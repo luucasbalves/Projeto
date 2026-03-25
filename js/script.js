@@ -57,7 +57,8 @@ function typeTerminal() {
             terminalText.innerHTML += lines[lineIndex].charAt(charIndex);
             charIndex++;
 
-            playTypingSound();
+            play
+                TypingSound();
             
             setTimeout(typeTerminal, 30);
 
@@ -81,15 +82,15 @@ function typeTerminal() {
 
 function playTypingSound(speed = 50) {
     const now = Date.now();
-    if (now - lastSoundTime < speed) return;
-
+    if (now - lastSoundTime < speed * 2) return;
+    if (Math.random() < 0.5) return;
     try {
         const sound = audioPool[currentAudio];
         sound.pause();
         sound.currentTime = 0;
 
         // 🔥 volume varia (mais humano)
-        sound.volume = Math.random() * 0.05 + 0.05;
+        sound.volume = Math.random() * 0.03 + 0.02;
 
         // 🔥 velocidade do áudio acompanha digitação
         sound.playbackRate = speed < 50 ? 1.3 : 0.9;
@@ -152,6 +153,7 @@ function getTypo(char) {
     }
     return char;
 }
+
 function typeWriter(elemento) {
     clearTimeout(typingTimer);
     isTyping = true;
