@@ -37,14 +37,14 @@ inset:0;
 z-index:0;
 }
 
-.container{
-position:relative;
-z-index:1;
-text-align:center;
-padding:40px 20px;
-max-width:1100px;
-margin:auto;
-padding-bottom: 100px;    
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Ocupa a tela toda para centralizar */
+    position: relative;
+    z-index: 1;
 }
 
 .hidden{
@@ -178,7 +178,7 @@ box-shadow:0 0 25px #25D366;
 }
 
 .card {
-    display:none; /* padrão escondido */
+    display: none !important;
     background: rgba(255,255,255,.05);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(0,255,255,.4);
@@ -221,7 +221,7 @@ box-shadow:0 0 25px #25D366;
 /* MODAL - Quando o card está aberto */
 .card.open{
     position:fixed;
-    display: flex;
+    display: flex !important;
     top:50%;
     left:50%;
     transform: translate(-50%, -50%) scale(1); 
@@ -251,6 +251,16 @@ box-shadow:0 0 25px #25D366;
     white-space: normal;
     overflow: visible;
     animation: none; 
+}
+
+#mainBtn {
+    animation: glowPulse 2s infinite;
+}
+
+@keyframes glowPulse {
+    0% { box-shadow: 0 0 5px cyan; transform: scale(1); }
+    50% { box-shadow: 0 0 25px cyan; transform: scale(1.05); }
+    100% { box-shadow: 0 0 5px cyan; transform: scale(1); }
 }
 
 @keyframes pulseWpp {
