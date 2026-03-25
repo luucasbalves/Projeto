@@ -63,6 +63,25 @@ opacity:.7;
 margin-bottom:30px;
 }
 
+/* Efeito de Glitch no Container ao abrir card */
+.matrix-glitch {
+    animation: glitch 0.2s linear;
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-5px, 5px); filter: hue-rotate(90deg); }
+    40% { transform: translate(-5px, -5px); }
+    60% { transform: translate(5px, 5px); filter: hue-rotate(180deg); }
+    80% { transform: translate(5px, -5px); }
+    100% { transform: translate(0); }
+}
+
+/* Ajuste das fontes da Chuva Digital */
+canvas#particles {
+    filter: blur(0.5px); /* Dá um aspecto mais retro/analógico */
+}
+
 /* buttons */
 .btnArea{
 display:flex;
