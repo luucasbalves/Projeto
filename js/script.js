@@ -1,3 +1,4 @@
+// --- DECLARAÇÕES ÚNICAS ---
 const loader = document.getElementById("loader");
 const container = document.querySelector(".container");
 const mainBtn = document.getElementById("mainBtn");
@@ -5,9 +6,14 @@ const backBtn = document.getElementById("backBtn");
 const allCards = document.querySelectorAll(".card");
 const closeButtons = document.querySelectorAll(".close");
 
-// --- SISTEMA DE SOM PROFISSIONAL (Pool de Áudio) ---
+let current = 0;
+let typingTimer;
+let isTyping = false;
+let matrixMode = false;
+
+// --- SISTEMA DE SOM (Pool de Áudio) ---
 const audioPool = [];
-const poolSize = 5; // Quantidade de sons simultâneos permitidos
+const poolSize = 5; 
 const typingSoundSrc = "https://www.fesliyanstudios.com/play-mp3/6";
 
 for (let i = 0; i < poolSize; i++) {
@@ -18,15 +24,12 @@ let currentAudio = 0;
 function playTypingSound() {
     const sound = audioPool[currentAudio];
     sound.volume = 0.15;
-    sound.currentTime = 0; // Reinicia o som instantaneamente
+    sound.currentTime = 0; 
     sound.play().catch(() => {});
     currentAudio = (currentAudio + 1) % poolSize;
 }
 
 // --- EFEITO DE DIGITAÇÃO ---
-let typingTimer;
-let isTyping = false;
-
 function typeWriter(elemento) {
     clearTimeout(typingTimer);
     isTyping = true;
@@ -45,9 +48,8 @@ function typeWriter(elemento) {
             } else {
                 elemento.innerHTML += textoOriginal.charAt(i);
                 i++;
-                playTypingSound(); // Chama o pool de som
+                playTypingSound();
             }
-            // Velocidade variada para parecer humano
             let velocidade = Math.random() * (40 - 15) + 15;
             typingTimer = setTimeout(digitar, velocidade);
         } else {
@@ -57,31 +59,13 @@ function typeWriter(elemento) {
     digitar();
 }
 
-// --- CONTROLE DOS CARDS ---
-let matrixMode = false;
-function showCard(index, abrirModal = false) {
-    allCards.forEach(card => card.classList.remove("open"));
-    if (abrirModal) {
-        matrixMode = true;
-        container.classList.add("matrix-glitch");
-        setTimeout(() => container.classList.remove("matrix-glitch"), 200);
-        
-        const cardAlvo = allCards[index];
-        cardAlvo.classList.add("open");
-        
-        const paragrafo = cardAlvo.querySelector("p");
-        if (paragrafo) typeWriter(paragrafo);
-        if (index === 1) skillTerminal();
-    }
-}
-
 // --- MATRIX RAIN ---
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const drops = Array(Math.floor(canvas.width / 16)).fill(1);
+let drops = Array(Math.floor(canvas.width / 16)).fill(1);
 
 function drawMatrix() {
     ctx.fillStyle = "rgba(4, 4, 15, 0.1)";
@@ -103,28 +87,22 @@ function animate() {
 }
 animate();
 
-// --- EVENTOS INICIAIS ---
-window.onload = () => {
-    // O loader fica 2.5 segundos para dar tempo do usuário ver a animação
-    setTimeout(() => {
-        loader.style.opacity = "0";
-        setTimeout(() => {
-            loader.style.display = "none";
-            container.classList.remove("hidden");
-        }, 500);
-    }, 2500);
-};
-
-mainBtn.onclick = () => showCard(0, true);
-
-// Fechar cards
-document.querySelectorAll(".close").forEach(btn => {
-    btn.onclick = (e) => {
-        e.stopPropagation();
-        allCards.forEach(c => c.classList.remove("open"));
-        matrixMode = false;
-    };
-});
+// --- LOGICA DOS CARDS ---
+function showCard(index, abrirModal = false) {
+    allCards.forEach(card => card.classList.remove("open"));
+    if (abrirModal) {
+        matrixMode = true;
+        container.classList.add("matrix-glitch");
+        setTimeout(() => container.classList.remove("matrix-glitch"), 200);
+        
+        const cardAlvo = allCards[index];
+        cardAlvo.classList.add("open");
+        
+        const paragrafo = cardAlvo.querySelector("p");
+        if (paragrafo) typeWriter(paragrafo);
+        if (index === 1) skillTerminal();
+    }
+}
 
 function skillTerminal() {
     const spans = document.querySelectorAll(".skills span");
@@ -137,8 +115,11 @@ function skillTerminal() {
     });
 }
 
-/* EVENTOS */
-mainBtn.onclick = () => showCard(0, true);
+// --- EVENTOS E CLIQUES ---
+mainBtn.onclick = () => {
+    current = 0;
+    showCard(0, true);
+};
 
 document.getElementById("next").onclick = () => {
     current = (current + 1) % allCards.length;
@@ -150,12 +131,6 @@ document.getElementById("prev").onclick = () => {
     showCard(current, true);
 };
 
-backBtn.onclick = () => {
-    container.classList.add("hidden");
-    loader.style.display = "flex";
-    setTimeout(() => window.location.reload(), 800);
-};
-
 closeButtons.forEach(btn => {
     btn.onclick = (e) => {
         e.stopPropagation();
@@ -164,14 +139,26 @@ closeButtons.forEach(btn => {
     };
 });
 
+backBtn.onclick = () => {
+    container.classList.add("hidden");
+    loader.style.display = "flex";
+    loader.style.opacity = "1";
+    setTimeout(() => window.location.reload(), 800);
+};
+
+// --- LOADER (UNICO) ---
 window.onload = () => {
     setTimeout(() => {
-        loader.style.display = "none";
-        container.classList.remove("hidden");
-    }, 2000);
+        loader.style.opacity = "0";
+        setTimeout(() => {
+            loader.style.display = "none";
+            container.classList.remove("hidden");
+        }, 500);
+    }, 2500);
 };
 
 window.addEventListener("resize", () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    drops = Array(Math.floor(canvas.width / 16)).fill(1);
 });
