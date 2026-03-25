@@ -91,17 +91,15 @@ margin-bottom:30px;
 flex-wrap:wrap;
 }
 
-.btn{
-padding:16px 38px;
-font-size:1.1rem;
-border-radius:50px;
-border:1px solid cyan;
-background:transparent;
-color:cyan;
-cursor:pointer;
-position:relative;
-overflow:hidden;
-transition:.3s;
+.btn {
+    background: rgba(0, 255, 255, 0.05);
+    border: 2px solid cyan;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    transition: all 0.3s ease;
 }
 
 .btn span{
@@ -194,6 +192,17 @@ transition:.3s;
 .contact-fixed:hover{
 transform:translateY(-50%) scale(1.1);
 box-shadow:0 0 25px #25D366;
+}
+
+#dots::after {
+    content: '';
+    animation: dots 1.5s infinite;
+}
+@keyframes dots {
+    0% { content: ''; }
+    33% { content: '.'; }
+    66% { content: '..'; }
+    100% { content: '...'; }
 }
 
 /* 2. ANIMAÇÕES DOS ÍCONES DOS CARDS */
@@ -291,10 +300,11 @@ box-shadow:0 0 25px #25D366;
     transition: .35s;
 }
 
-.card:hover{
-    transform:translateY(-8px) scale(1.02);
-    box-shadow:0 0 25px cyan;
-    background:rgba(255,255,255,.1);
+.btn:hover {
+    background: cyan !important;
+    color: black !important;
+    box-shadow: 0 0 50px cyan !important;
+    transform: translateY(-3px);
 }
 
 /* MODAL - Quando o card está aberto */
@@ -333,15 +343,20 @@ box-shadow:0 0 25px #25D366;
 }
 
 #mainBtn {
-    background: rgba(0, 255, 255, 0.1); /* Fundo leve para contraste */
+    background: rgba(0, 255, 255, 0.1);
     border: 2px solid cyan;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), inset 0 0 10px rgba(0, 255, 255, 0.2);
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 2px;
     z-index: 10;
+    animation: urgentPulse 2s infinite;
+    }
+@keyframes urgentPulse {
+    0% { box-shadow: 0 0 10px cyan, inset 0 0 5px cyan; transform: scale(1); }
+    50% { box-shadow: 0 0 30px cyan, inset 0 0 15px cyan; transform: scale(1.05); }
+    100% { box-shadow: 0 0 10px cyan, inset 0 0 5px cyan; transform: scale(1); }
 }
-
 @keyframes glowPulse {
     0% { box-shadow: 0 0 5px cyan; transform: scale(1); }
     50% { box-shadow: 0 0 25px cyan; transform: scale(1.05); }
