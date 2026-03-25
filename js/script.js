@@ -13,9 +13,6 @@ openSound.volume = 0.2;
 closeSound.volume = 0.2;
 const hoverSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
 hoverSound.volume = 0.05;
-const ambientSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
-ambientSound.loop = true;
-ambientSound.volume = 0.03;
 
 let current = 0;
 let typingTimer;
@@ -81,15 +78,14 @@ function typeTerminal() {
 
 function playTypingSound(speed = 50) {
     const now = Date.now();
-    if (now - lastSoundTime < speed * 2) return;
-    if (Math.random() < 0.7) return;
+    if (now - lastSoundTime < speed) return;
     try {
         const sound = audioPool[currentAudio];
         sound.pause();
         sound.currentTime = 0;
 
         // 🔥 volume varia (mais humano)
-        sound.volume = Math.random() * 0.03 + 0.02;
+       sound.volume = Math.random() * 0.05 + 0.05;
 
         // 🔥 velocidade do áudio acompanha digitação
         sound.playbackRate = speed < 50 ? 1.3 : 0.9;
@@ -284,9 +280,16 @@ function animate() {
 animate();
 
 function startAmbient() {
-    if (!ambientSound.paused) return;
-    ambientSound.play().catch(()=>{});
-    document.removeEventListener("click", startAmbient);
+    ambientSound.volume = 0.03;
+
+    ambientSound.play().then(() => {
+        // já tocou
+    }).catch(() => {
+        // tenta de novo no primeiro clique
+        document.addEventListener("click", () => {
+            ambientSound.play().catch(()=>{});
+        }, { once: true });
+    });
 }
 document.addEventListener("click", startAmbient);
 // --- LOGICA DOS CARDS ---
@@ -405,8 +408,18 @@ backBtn.onclick = () => {
     setTimeout(() => window.location.reload(), 800);
 };
 
+function startMusic() {
+    const iframe = document.getElementById("bgMusic");
+    iframe.src = iframe.src.replace("mute=1", "mute=0");
+
+    document.removeEventListener("click", startMusic);
+}
+
+document.addEventListener("click", startMusic);
+
 // --- LOADER (UNICO) ---
 window.onload = () => {
+    startAmbient();
     typeTerminal();
     setTimeout(() => {
         loader.style.opacity = "0";
