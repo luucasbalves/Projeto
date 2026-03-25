@@ -107,6 +107,45 @@ function stopTyping() {
 }
 
 // --- EFEITO DE DIGITAÇÃO ---
+// mapa de proximidade do teclado (simula erro humano real)
+const keyboardMap = {
+    a: "sqwz",
+    b: "vghn",
+    c: "xdfv",
+    d: "serfcx",
+    e: "wsdfr",
+    f: "drtgvc",
+    g: "ftyhbv",
+    h: "gyujnb",
+    i: "ujko",
+    j: "huikmn",
+    k: "jiolm",
+    l: "kop",
+    m: "njk",
+    n: "bhjm",
+    o: "iklp",
+    p: "ol",
+    q: "wa",
+    r: "edft",
+    s: "awedxz",
+    t: "rfgy",
+    u: "yhji",
+    v: "cfgb",
+    w: "qase",
+    x: "zsdc",
+    y: "tghu",
+    z: "asx"
+};
+
+// pega uma letra errada baseada na correta
+function getTypo(char) {
+    const lower = char.toLowerCase();
+    if (keyboardMap[lower]) {
+        const opcoes = keyboardMap[lower];
+        return opcoes[Math.floor(Math.random() * opcoes.length)];
+    }
+    return char;
+}
 function typeWriter(elemento) {
     clearTimeout(typingTimer);
     isTyping = true;
@@ -123,36 +162,60 @@ function typeWriter(elemento) {
     function digitar() {
         if (!elemento.isConnected) return;
 
-        // 🔥 chance de erro humano
-       if (Math.random() < 0.08 && i > 8) {
-            elemento.innerHTML += textoOriginal.charAt(i);
-            i++;
+        // 🔥 ERRO HUMANO REAL
+        if (Math.random() < 0.07 && i > 5) {
 
+            const letraCorreta = textoOriginal.charAt(i);
+            const letraErrada = getTypo(letraCorreta);
+
+            elemento.innerHTML += letraErrada;
+            playTypingSound();
+
+            // pausa "pensando"
             setTimeout(() => {
-                // apaga (simula erro)
+
+                // apaga erro
                 elemento.innerHTML = elemento.innerHTML.slice(0, -1);
 
-                setTimeout(digitar, 100);
-            }, 120);
+                setTimeout(() => {
+                    // digita correto
+                    elemento.innerHTML += letraCorreta;
+                    i++;
+
+                    playTypingSound();
+
+                    setTimeout(digitar, 60);
+                }, 120);
+
+            }, 180);
 
             return;
         }
 
-        if (i < textoOriginal.length) {
-
-            if (textoOriginal.slice(i, i + 4) === '<br>') {
-                elemento.innerHTML += '<br>';
-                i += 4;
-            } else {
-                elemento.innerHTML += textoOriginal.charAt(i);
-                i++;
-                playTypingSound();
-            }
-
-            let velocidade = Math.random() * 80 + 20;
-            typingTimer = setTimeout(digitar, velocidade);
-
+        // quebra de linha
+        if (textoOriginal.slice(i, i + 4) === '<br>') {
+            elemento.innerHTML += '<br>';
+            i += 4;
         } else {
+            elemento.innerHTML += textoOriginal.charAt(i);
+            i++;
+            playTypingSound();
+        }
+
+        // 🔥 VELOCIDADE HUMANA (varia)
+        let velocidade;
+
+        if (Math.random() < 0.1) {
+            velocidade = 120; // pensa mais
+        } else if (Math.random() < 0.3) {
+            velocidade = 30; // digita rápido
+        } else {
+            velocidade = Math.random() * 60 + 40;
+        }
+
+        typingTimer = setTimeout(digitar, velocidade);
+
+        if (i >= textoOriginal.length) {
             isTyping = false;
         }
     }
