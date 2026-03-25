@@ -57,8 +57,8 @@ function typeTerminal() {
             terminalText.innerHTML += lines[lineIndex].charAt(charIndex);
             charIndex++;
 
-            playTypingSound();
-
+            playTypingSound(velocidade);
+            
             setTimeout(typeTerminal, 30);
 
         } else {
@@ -79,15 +79,21 @@ function typeTerminal() {
 }
 
 
-function playTypingSound() {
+function playTypingSound(speed = 50) {
     const now = Date.now();
-    if (now - lastSoundTime < 70) return;
+    if (now - lastSoundTime < speed) return;
 
     try {
         const sound = audioPool[currentAudio];
         sound.pause();
         sound.currentTime = 0;
-        sound.volume = 0.08;
+
+        // 🔥 volume varia (mais humano)
+        sound.volume = Math.random() * 0.05 + 0.05;
+
+        // 🔥 velocidade do áudio acompanha digitação
+        sound.playbackRate = speed < 50 ? 1.3 : 0.9;
+
         sound.play();
 
         currentAudio = (currentAudio + 1) % poolSize;
@@ -157,19 +163,24 @@ function typeWriter(elemento) {
     }
 
     elemento.innerHTML = '';
+    elemento.classList.add("typing");
     let i = 0;
 
     function digitar() {
+        if (i >= textoOriginal.length) {
+    isTyping = false;
+    return;
+}
         if (!elemento.isConnected) return;
 
         // 🔥 ERRO HUMANO REAL
-        if (Math.random() < 0.07 && i > 5) {
+        if (Math.random() < 0.07 && i > 5 && i < textoOriginal.length) {
 
             const letraCorreta = textoOriginal.charAt(i);
             const letraErrada = getTypo(letraCorreta);
 
             elemento.innerHTML += letraErrada;
-            playTypingSound();
+            playTypingSound(velocidade);
 
             // pausa "pensando"
             setTimeout(() => {
@@ -182,7 +193,7 @@ function typeWriter(elemento) {
                     elemento.innerHTML += letraCorreta;
                     i++;
 
-                    playTypingSound();
+                    playTypingSound(velocidade);
 
                     setTimeout(digitar, 60);
                 }, 120);
@@ -199,24 +210,40 @@ function typeWriter(elemento) {
         } else {
             elemento.innerHTML += textoOriginal.charAt(i);
             i++;
-            playTypingSound();
+            playTypingSound(velocidade);
         }
 
         // 🔥 VELOCIDADE HUMANA (varia)
-        let velocidade;
+        // progresso da digitação (0 → 1)
+let progresso = i / textoOriginal.length;
 
-        if (Math.random() < 0.1) {
-            velocidade = 120; // pensa mais
-        } else if (Math.random() < 0.3) {
-            velocidade = 30; // digita rápido
-        } else {
-            velocidade = Math.random() * 60 + 40;
-        }
+let velocidade;
+
+// início lento (pensando)
+if (progresso < 0.2) {
+    velocidade = Math.random() * 80 + 80;
+}
+// meio rápido (fluxo)
+else if (progresso < 0.8) {
+    velocidade = Math.random() * 40 + 20;
+}
+// final desacelera (precisão)
+else {
+    velocidade = Math.random() * 80 + 60;
+}
+
+// pausas humanas aleatórias
+if (Math.random() < 0.08) velocidade += 120;
 
         typingTimer = setTimeout(digitar, velocidade);
 
-        if (i >= textoOriginal.length) {
-            isTyping = false;
+        if (i < textoOriginal.length) {
+    typingTimer = setTimeout(digitar, velocidade);
+} else {
+    isTyping = false;
+    stopTyping(); // 🔥 garante que tudo para
+    elemento.classList.remove("typing"); 
+}
         }
     }
 
