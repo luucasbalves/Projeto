@@ -127,6 +127,27 @@ pointer-events:none;
     50% { opacity: 0; }
 }
 
+.scan-line {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0,255,255,0.08) 50%,
+        transparent 100%
+    );
+
+    animation: scanMove 4s linear infinite;
+}
+
+@keyframes scanMove {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
 /* Ajuste das fontes da Chuva Digital */
 canvas#particles {
     filter: blur(0.5px); /* Dá um aspecto mais retro/analógico */
