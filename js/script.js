@@ -1,87 +1,95 @@
-/* --- CONFIGURAÇÕES INICIAIS & LOADER --- */
+/* --- CONFIGURAÇÕES E ELEMENTOS --- */
 const loader = document.getElementById("loader");
 const container = document.querySelector(".container");
-const dots = document.getElementById("dots");
 const mainBtn = document.getElementById("mainBtn");
 const allCards = document.querySelectorAll(".card");
 const closeButtons = document.querySelectorAll(".close");
-
-let c = 0;
-const anim = setInterval(() => {
-    c++;
-    dots.textContent = ".".repeat(c % 4);
-}, 400);
-
 let current = 0;
 
+// Função para o efeito de Digitação (Typewriter)
+let typingTimer; // Variável para controlar o tempo
+
+function typeWriter(elemento) {
+    // Se já tiver uma digitação rolando, a gente para ela antes de começar a nova
+    clearTimeout(typingTimer); 
+    
+    const textoOriginal = elemento.getAttribute('data-text') || elemento.innerHTML;
+    // Salva o texto original para não perder as tags HTML (como <br>)
+    if (!elemento.getAttribute('data-text')) {
+        elemento.setAttribute('data-text', textoOriginal);
+    }
+
+    elemento.innerHTML = '';
+    const caracteres = textoOriginal.split('');
+    
+    caracteres.forEach((letra, i) => {
+        typingTimer = setTimeout(() => {
+            elemento.innerHTML += letra;
+        }, 15 * i);
+    });
+}
+
+// Função Principal de Mostrar Card
+function showCard(index, abrirModal = false) {
+    allCards.forEach(card => card.classList.remove("active", "open"));
+    
+    const cardAlvo = allCards[index];
+    cardAlvo.classList.add("active");
+
+    if (abrirModal) {
+        cardAlvo.classList.add("open");
+        const paragrafo = cardAlvo.querySelector("p");
+        
+        // Se for o card de contato, adiciona animação no botão de Whats
+        if (index === 5) { // Index do card de Contato
+            const wppBtn = cardAlvo.querySelector(".wpp");
+            wppBtn.classList.add("wpp-animation");
+        }
+        
+        // Dispara o efeito de escrever se houver parágrafo
+        if (paragrafo) {
+            typeWriter(paragrafo);
+        }
+    }
+}
+
+/* --- EVENTOS --- */
+
+// Botão Inicial
+mainBtn.addEventListener("click", () => {
+    current = 0;
+    showCard(current, true);
+});
+
+// Botão Próximo
+document.getElementById("next").onclick = () => {
+    current = (current + 1) % allCards.length;
+    showCard(current, true);
+};
+
+// Botão Anterior
+document.getElementById("prev").onclick = () => {
+    current = (current - 1 + allCards.length) % allCards.length;
+    showCard(current, true);
+};
+
+// Botão Fechar
+closeButtons.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        btn.closest(".card").classList.remove("open");
+    });
+});
+
+// Loader Inicial
 window.onload = () => {
     setTimeout(() => {
-        loader.style.opacity = "0";
-        setTimeout(() => {
-            loader.style.display = "none";
-            container.classList.remove("hidden");
-        }, 500);
-        clearInterval(anim);
+        loader.style.display = "none";
+        container.classList.remove("hidden");
     }, 2000);
 };
 
-/* --- LÓGICA DOS CARDS (MODAL & NAVEGAÇÃO) --- */
-
-function showCard(index) {
-    // Remove as classes de todo mundo primeiro
-    allCards.forEach(card => {
-        card.classList.remove("active", "open");
-    });
-    // Ativa o card atual (para o CSS saber quem mostrar)
-    allCards[index].classList.add("active");
-}
-
-// Botão principal: Inicia a jornada
-mainBtn.addEventListener("click", () => {
-    current = 0;
-    showCard(current);
-    allCards[current].classList.add("open");
-});
-
-// Fechar os cards
-closeButtons.forEach(btn => {
-    btn.addEventListener("click", (e) => {
-        e.stopPropagation(); // Evita que o clique "vaze" para o card
-        const card = btn.closest(".card");
-        card.classList.remove("open");
-    });
-});
-
-// Navegação por Setas (Próximo e Anterior)
-document.getElementById("next").onclick = () => {
-    current = (current + 1) % allCards.length;
-    showCard(current);
-    allCards[current].classList.add("open");
-};
-
-document.getElementById("prev").onclick = () => {
-    current = (current - 1 + allCards.length) % allCards.length;
-    showCard(current);
-    allCards[current].classList.add("open");
-};
-
-// Navegação por Teclado
-document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight") document.getElementById("next").click();
-    if (e.key === "ArrowLeft") document.getElementById("prev").click();
-    if (e.key === "Escape") {
-        allCards.forEach(card => card.classList.remove("open"));
-    }
-});
-
-// Clique direto no card (caso queira abrir um específico)
-allCards.forEach((card, index) => {
-    card.addEventListener("click", () => {
-        current = index;
-        card.classList.add("open");
-    });
-});
-
+// Lógica das Partículas (Mantenha o seu código de partículas original aqui embaixo)
 /* --- PARTICULAS (BACKGROUND) --- */
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
