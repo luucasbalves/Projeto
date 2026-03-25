@@ -82,7 +82,7 @@ function typeTerminal() {
 function playTypingSound(speed = 50) {
     const now = Date.now();
     if (now - lastSoundTime < speed * 2) return;
-    if (Math.random() < 0.5) return;
+    if (Math.random() < 0.7) return;
     try {
         const sound = audioPool[currentAudio];
         sound.pause();
