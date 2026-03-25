@@ -101,6 +101,17 @@ pointer-events:none;
     100% { transform: translate(0); }
 }
 
+.typing::after {
+    content: "|";
+    margin-left: 5px;
+    animation: blinkCursor 1s infinite;
+}
+
+@keyframes blinkCursor {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
 /*terminal*/
 
 #terminal {
@@ -120,11 +131,6 @@ pointer-events:none;
     content: "|";
     animation: blink 1s infinite;
     margin-left: 5px;
-}
-
-@keyframes blink {
-    0%,100% { opacity: 1; }
-    50% { opacity: 0; }
 }
 
 .scan-line {
