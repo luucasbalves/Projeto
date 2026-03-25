@@ -7,6 +7,10 @@ const allCards = document.querySelectorAll(".card");
 const closeButtons = document.querySelectorAll(".close");
 const swipeSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
 swipeSound.volume = 0.2;
+const openSound = new Audio("https://www.fesliyanstudios.com/play-mp3/6677");
+const closeSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
+openSound.volume = 0.2;
+closeSound.volume = 0.2;
 
 let current = 0;
 let typingTimer;
@@ -22,6 +26,49 @@ const typingSoundSrc = "https://www.fesliyanstudios.com/play-mp3/6";
 
 for (let i = 0; i < poolSize; i++) {
     audioPool.push(new Audio(typingSoundSrc));
+}
+
+const terminal = document.getElementById("terminal");
+const terminalText = document.getElementById("terminalText");
+const lines = [
+    "> iniciando sistema...",
+    "> carregando módulos...",
+    "> acessando perfil...",
+    "> acesso autorizado ✔",
+    "> bem-vindo, Lucas Barbosa Alves"
+];
+
+let lineIndex = 0;
+let charIndex = 0;
+
+function typeTerminal() {
+    if (!terminal || !terminalText) return;
+
+    if (lineIndex < lines.length) {
+        if (charIndex < lines[lineIndex].length) {
+
+            terminalText.innerHTML += lines[lineIndex].charAt(charIndex);
+            charIndex++;
+
+            playTypingSound();
+
+            setTimeout(typeTerminal, 30);
+
+        } else {
+            terminalText.innerHTML += "<br>";
+            lineIndex++;
+            charIndex = 0;
+
+            setTimeout(typeTerminal, 400);
+        }
+    } else {
+        setTimeout(() => {
+            terminal.style.opacity = "0";
+            setTimeout(() => {
+                terminal.style.display = "none";
+            }, 500);
+        }, 800);
+    }
 }
 
 
@@ -80,7 +127,7 @@ function typeWriter(elemento) {
                 playTypingSound();
             }
 
-            let velocidade = Math.random() * 50 + 40;
+            let velocidade = Math.random() * 80 + 20;
             typingTimer = setTimeout(digitar, velocidade);
 
         } else {
@@ -129,13 +176,20 @@ animate();
 
 // --- LOGICA DOS CARDS ---
 function showCard(index, abrirModal = false) {
-    stopTyping(); // 🔥 garante limpeza total
+    stopTyping();
+
+    document.body.classList.add("flash");
+    setTimeout(() => document.body.classList.remove("flash"), 150);
+
     swipeSound.currentTime = 0;
     swipeSound.play().catch(()=>{});
 
     allCards.forEach(card => card.classList.remove("open"));
 
     if (abrirModal) {
+        openSound.currentTime = 0;
+        openSound.play().catch(()=>{});
+
         matrixMode = true;
         container.classList.add("matrix-glitch");
 
@@ -146,6 +200,22 @@ function showCard(index, abrirModal = false) {
 
         const paragrafo = cardAlvo.querySelector("p");
         if (paragrafo) typeWriter(paragrafo);
+
+        // 🔥 clicar em qualquer lugar do card pula animação
+        cardAlvo.onclick = () => {
+            if (isTyping) {
+                const p = cardAlvo.querySelector("p");
+                if (p) {
+                    stopTyping();
+                    p.innerHTML = p.getAttribute('data-text');
+                }
+            }
+        };
+
+        // 🔒 evita conflito com botão fechar
+        cardAlvo.querySelector(".close")?.addEventListener("click", (e) => {
+            e.stopPropagation();
+        });
 
         if (index === 1) skillTerminal();
     }
@@ -182,7 +252,10 @@ closeButtons.forEach(btn => {
     btn.onclick = (e) => {
         e.stopPropagation();
 
-        stopTyping(); // 🔥 IMPORTANTE
+        stopTyping();
+
+        closeSound.currentTime = 0;
+        closeSound.play().catch(()=>{});
 
         allCards.forEach(c => c.classList.remove("open"));
         matrixMode = false;
@@ -198,6 +271,7 @@ backBtn.onclick = () => {
 
 // --- LOADER (UNICO) ---
 window.onload = () => {
+    typeTerminal();
     setTimeout(() => {
         loader.style.opacity = "0";
         setTimeout(() => {
