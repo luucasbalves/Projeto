@@ -266,7 +266,7 @@ box-shadow:0 0 25px #25D366;
 }
 
 .card {
-    display: none !important;
+    display: none;
     background: rgba(255,255,255,.05);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(0,255,255,.4);
@@ -310,7 +310,7 @@ box-shadow:0 0 25px #25D366;
 /* MODAL - Quando o card está aberto */
 .card.open{
     position:fixed;
-    display: flex !important;
+    display: flex ;
     top:50%;
     left:50%;
     transform: translate(-50%, -50%) scale(1); 
