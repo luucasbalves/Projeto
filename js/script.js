@@ -10,6 +10,8 @@ let current = 0;
 let typingTimer;
 let isTyping = false;
 let matrixMode = false;
+let currentAudio = 0;
+let lastSoundTime = 0;
 
 // --- SISTEMA DE SOM (Pool de Áudio) ---
 const audioPool = [];
@@ -24,22 +26,24 @@ let lastSoundTime = 0;
 
 function playTypingSound() {
     const now = Date.now();
+    if (now - lastSoundTime < 70) return;
 
-    // só toca a cada 80ms
-    if (now - lastSoundTime < 80) return;
+    try {
+        const sound = audioPool[currentAudio];
+        sound.pause();
+        sound.currentTime = 0;
+        sound.volume = 0.08;
+        sound.play();
 
-    const sound = audioPool[currentAudio];
-    sound.volume = 0.1;
-
-    sound.currentTime = 0;
-    sound.play().catch(() => {});
-
-    currentAudio = (currentAudio + 1) % poolSize;
-    lastSoundTime = now;
+        currentAudio = (currentAudio + 1) % poolSize;
+        lastSoundTime = now;
+    } catch(e){}
 }
 
 // --- EFEITO DE DIGITAÇÃO ---
 function typeWriter(elemento) {
+    clearTimeout(typingTimer);
+isTyping = false;
     clearTimeout(typingTimer);
     isTyping = true;
     
@@ -50,6 +54,7 @@ function typeWriter(elemento) {
     let i = 0;
 
     function digitar() {
+        if (!elemento.isConnected) return;
         if (i < textoOriginal.length) {
             if (textoOriginal.slice(i, i + 4) === '<br>') {
                 elemento.innerHTML += '<br>';
