@@ -5,11 +5,6 @@ const backBtn = document.getElementById("backBtn");
 const allCards = document.querySelectorAll(".card");
 const closeButtons = document.querySelectorAll(".close");
 
-const loader = document.getElementById("loader");
-const container = document.querySelector(".container");
-const mainBtn = document.getElementById("mainBtn");
-const allCards = document.querySelectorAll(".card");
-
 // --- SISTEMA DE SOM PROFISSIONAL (Pool de Áudio) ---
 const audioPool = [];
 const poolSize = 5; // Quantidade de sons simultâneos permitidos
