@@ -160,6 +160,64 @@ canvas#particles {
 }
 
 /* buttons */
+
+/* BOOT SCREEN */
+
+#bootScreen{
+    position:fixed;
+    inset:0;
+    background:black;
+    color:#00ff88;
+    z-index:10000;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    font-family:'Orbitron';
+    text-align:center;
+}
+
+.boot-title{
+    font-size:2.5rem;
+    margin-bottom:30px;
+    text-shadow:0 0 15px #00ff88;
+}
+
+#startBtn{
+    padding:15px 35px;
+    font-size:1rem;
+    border:2px solid #00ff88;
+    background:transparent;
+    color:#00ff88;
+    cursor:pointer;
+    letter-spacing:2px;
+    transition:.3s;
+}
+
+#startBtn:hover{
+    background:#00ff88;
+    color:black;
+    box-shadow:0 0 25px #00ff88;
+    transform:scale(1.05);
+}
+
+#bootText{
+    margin-top:40px;
+    font-family:monospace;
+    font-size:1rem;
+    text-align:left;
+    max-width:400px;
+    min-height:120px;
+}
+
+.boot-glitch{
+    animation:bootFlash .2s;
+}
+
+@keyframes bootFlash{
+    0%{background:white;color:black;}
+    100%{background:black;color:#00ff88;}
+}
 .btnArea{
 display:flex;
 gap:15px;
