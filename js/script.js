@@ -13,6 +13,9 @@ openSound.volume = 0.2;
 closeSound.volume = 0.2;
 const hoverSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
 hoverSound.volume = 0.05;
+const ambientSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
+ambientSound.loop = true;
+ambientSound.volume = 0.03;
 
 let current = 0;
 let typingTimer;
@@ -20,7 +23,8 @@ let isTyping = false;
 let matrixMode = false;
 let currentAudio = 0;
 let lastSoundTime = 0;
-let currentCardIndex = 0;    
+let currentCardIndex = 0;   
+let lastHoverTime = 0;
 
 // --- SISTEMA DE SOM (Pool de Áudio) ---
 const audioPool = [];
@@ -119,6 +123,21 @@ function typeWriter(elemento) {
     function digitar() {
         if (!elemento.isConnected) return;
 
+        // 🔥 chance de erro humano
+        if (Math.random() < 0.05 && i > 5) {
+            elemento.innerHTML += textoOriginal.charAt(i);
+            i++;
+
+            setTimeout(() => {
+                // apaga (simula erro)
+                elemento.innerHTML = elemento.innerHTML.slice(0, -1);
+
+                setTimeout(digitar, 100);
+            }, 120);
+
+            return;
+        }
+
         if (i < textoOriginal.length) {
 
             if (textoOriginal.slice(i, i + 4) === '<br>') {
@@ -138,13 +157,12 @@ function typeWriter(elemento) {
         }
     }
 
-    // 🔥 NOVO: clique para pular animação
     elemento.onclick = () => {
-    if (isTyping) {
-        stopTyping();
-        elemento.innerHTML = textoOriginal;
-    }
-};
+        if (isTyping) {
+            stopTyping();
+            elemento.innerHTML = textoOriginal;
+        }
+    };
 
     digitar();
 }
@@ -184,6 +202,17 @@ function animate() {
     requestAnimationFrame(animate);
 }
 animate();
+
+function startAmbient() {
+    ambientSound.play().catch(()=>{});
+    document.removeEventListener("click", startAmbient);
+}
+
+function startAmbient() {
+    if (!ambientSound.paused) return;
+    ambientSound.play().catch(()=>{});
+    document.removeEventListener("click", startAmbient);
+}
 
 // --- LOGICA DOS CARDS ---
 function showCard(index, abrirModal = false) {
@@ -231,6 +260,14 @@ function showCard(index, abrirModal = false) {
 
         if (index === 1) skillTerminal();
     }
+}
+const scanLine = document.querySelector(".scan-line");
+
+if (scanLine) {
+    scanLine.style.opacity = "1";
+    setTimeout(() => {
+        scanLine.style.opacity = "0.3";
+    }, 300);
 }
 
 document.querySelectorAll(".btn, .card").forEach(el => {
