@@ -11,6 +11,8 @@ const openSound = new Audio("https://www.fesliyanstudios.com/play-mp3/6677");
 const closeSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
 openSound.volume = 0.2;
 closeSound.volume = 0.2;
+const hoverSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
+hoverSound.volume = 0.05;
 
 let current = 0;
 let typingTimer;
@@ -18,6 +20,7 @@ let isTyping = false;
 let matrixMode = false;
 let currentAudio = 0;
 let lastSoundTime = 0;
+let currentCardIndex = 0;    
 
 // --- SISTEMA DE SOM (Pool de Áudio) ---
 const audioPool = [];
@@ -137,11 +140,11 @@ function typeWriter(elemento) {
 
     // 🔥 NOVO: clique para pular animação
     elemento.onclick = () => {
-        if (isTyping) {
-            stopTyping();
-            elemento.innerHTML = textoOriginal;
-        }
-    };
+    if (isTyping) {
+        stopTyping();
+        elemento.innerHTML = textoOriginal;
+    }
+};
 
     digitar();
 }
@@ -153,12 +156,20 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let drops = Array(Math.floor(canvas.width / 16)).fill(1);
+ctx.font = "16px Orbitron";
+
 
 function drawMatrix() {
     ctx.fillStyle = "rgba(4, 4, 15, 0.1)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = matrixMode ? "#00ff46" : "#00ffff";
-    ctx.font = "16px Orbitron";
+    if (!matrixMode) {
+    ctx.fillStyle = "#00ffff";
+} else {
+    if (currentCardIndex === 0) ctx.fillStyle = "#00ffff";
+    else if (currentCardIndex === 1) ctx.fillStyle = "#00ff88";
+    else if (currentCardIndex === 2) ctx.fillStyle = "#ffaa00";
+    else ctx.fillStyle = "#00ff46";
+}
 
     drops.forEach((y, i) => {
         const text = Math.floor(Math.random() * 2);
@@ -177,6 +188,7 @@ animate();
 // --- LOGICA DOS CARDS ---
 function showCard(index, abrirModal = false) {
     stopTyping();
+    currentCardIndex = index;
 
     document.body.classList.add("flash");
     setTimeout(() => document.body.classList.remove("flash"), 150);
@@ -201,8 +213,8 @@ function showCard(index, abrirModal = false) {
         const paragrafo = cardAlvo.querySelector("p");
         if (paragrafo) typeWriter(paragrafo);
 
-        // 🔥 clicar em qualquer lugar do card pula animação
-        cardAlvo.onclick = () => {
+        // clicar no card pula digitação
+        cardAlvo.addEventListener("click", () => {
             if (isTyping) {
                 const p = cardAlvo.querySelector("p");
                 if (p) {
@@ -210,9 +222,9 @@ function showCard(index, abrirModal = false) {
                     p.innerHTML = p.getAttribute('data-text');
                 }
             }
-        };
+        }, { once: true });
 
-        // 🔒 evita conflito com botão fechar
+        // evitar conflito botão fechar
         cardAlvo.querySelector(".close")?.addEventListener("click", (e) => {
             e.stopPropagation();
         });
@@ -221,6 +233,16 @@ function showCard(index, abrirModal = false) {
     }
 }
 
+document.querySelectorAll(".btn, .card").forEach(el => {
+    el.addEventListener("mouseenter", () => {
+        const now = Date.now();
+        if (now - lastHoverTime < 100) return;
+
+        hoverSound.currentTime = 0;
+        hoverSound.play().catch(()=>{});
+        lastHoverTime = now;
+    });
+});
 function skillTerminal() {
     const spans = document.querySelectorAll(".skills span");
     spans.forEach((span, index) => {
@@ -259,6 +281,7 @@ closeButtons.forEach(btn => {
 
         allCards.forEach(c => c.classList.remove("open"));
         matrixMode = false;
+        currentCardIndex = 0;
     };
 });
 
