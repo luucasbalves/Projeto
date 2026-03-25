@@ -1,5 +1,4 @@
 // --- DECLARAÇÕES ÚNICAS ---
-const loader = document.getElementById("loader");
 const container = document.querySelector(".container");
 const mainBtn = document.getElementById("mainBtn");
 const backBtn = document.getElementById("backBtn");
@@ -396,10 +395,7 @@ closeButtons.forEach(btn => {
 });
 
 backBtn.onclick = () => {
-    container.classList.add("hidden");
-    loader.style.display = "flex";
-    loader.style.opacity = "1";
-    setTimeout(() => window.location.reload(), 800);
+    window.location.reload();
 };
 
 // --- LOADER (UNICO) ---
@@ -473,32 +469,13 @@ function enterSite(){
 
         container.classList.remove("hidden");
 
-        // agora sim inicia seu terminal
+        // 👇 MOSTRA o terminal aqui
+        terminal.style.display = "flex";
+
         typeTerminal();
 
     },500);
 }
-const startBtn = document.getElementById("startBtn");
-
-startBtn.onclick = () => {
-
-    // 🔊 ativa música (desbloqueia autoplay)
-    startMusic();
-
-    // efeito visual
-    loader.style.opacity = "0";
-
-    setTimeout(() => {
-        loader.style.display = "none";
-
-        // mostra conteúdo
-        container.classList.remove("hidden");
-
-        // inicia terminal AGORA (não antes)
-        typeTerminal();
-
-    }, 500);
-};
 
 window.addEventListener("resize", () => {
     canvas.width = window.innerWidth;
