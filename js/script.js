@@ -38,7 +38,7 @@ const lines = [
     "> carregando módulos...",
     "> acessando perfil...",
     "> acesso autorizado ✔",
-    "> bem-vindo, Lucas Barbosa Alves"
+    "> Seja bem-vindo ao meu mundo!"
 ];
 
 let lineIndex = 0;
