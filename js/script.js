@@ -404,11 +404,11 @@ const bootScreen = document.getElementById("bootScreen");
 const bootText = document.getElementById("bootText");
 
 const bootLines = [
-"> detecting user...",
-"> initializing system...",
-"> loading modules...",
-"> connecting interface...",
-"> access granted ✔"
+"> iniciando sistema...",
+"> carregando módulos...",
+"> acessando perfil...",
+"> acesso autorizado ✔",
+"> Seja bem-vindo ao meu mundo!"
 ];
 
 let bootIndex = 0;
