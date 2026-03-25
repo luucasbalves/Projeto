@@ -22,7 +22,6 @@ for (let i = 0; i < poolSize; i++) {
     audioPool.push(new Audio(typingSoundSrc));
 }
 
-let lastSoundTime = 0;
 
 function playTypingSound() {
     const now = Date.now();
@@ -42,8 +41,6 @@ function playTypingSound() {
 
 // --- EFEITO DE DIGITAÇÃO ---
 function typeWriter(elemento) {
-    clearTimeout(typingTimer);
-isTyping = false;
     clearTimeout(typingTimer);
     isTyping = true;
     
