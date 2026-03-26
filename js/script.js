@@ -17,7 +17,8 @@ const dom = {
     bgMusic: document.getElementById("bgMusic"),
     canvas: document.getElementById("particles"),
     nextBtn: document.getElementById("next"),
-    prevBtn: document.getElementById("prev")
+    prevBtn: document.getElementById("prev"),
+    navArrows: document.querySelector(".nav-arrows")
 };
 
 // --- CONFIGURAÇÃO DE ÁUDIO ---
@@ -229,6 +230,7 @@ function showCard(index, openModal = false) {
     target.classList.add("active");
 
     if (openModal) {
+        dom.navArrows.classList.add("active");
         sounds.open.currentTime = 0;
         sounds.open.play().catch(()=>{});
         state.matrixMode = true;
@@ -287,7 +289,7 @@ function initApp() {
             stopAllTypingSounds();
             sounds.close.currentTime = 0;
             sounds.close.play().catch(()=>{});
-            dom.allCards.forEach(c => c.classList.remove("open", "active"));
+            dom.navArrows.classList.remove("active")
             state.matrixMode = false;
         };
     });
@@ -306,5 +308,5 @@ function initApp() {
 
     window.onresize = initMatrix;
 }
-
+    dom.navArrows.classList.remove("active");
 initApp();
