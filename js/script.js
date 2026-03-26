@@ -298,7 +298,8 @@ function initApp() {
     });
 
     dom.backBtn.onclick = () => {
-    dom.overlay.classList.remove("active");
+    location.reload();
+    };
     dom.navArrows.classList.remove("active");
 
     dom.allCards.forEach(c => c.classList.remove("open", "active"));
@@ -350,7 +351,12 @@ document.addEventListener("keydown", (e) => {
     }
 
     if (e.key === "Escape") {
-        dom.overlay.click();
+    document.querySelectorAll(".card").forEach(c => {
+        c.classList.remove("open", "active");
+    });
+
+    dom.navArrows.classList.remove("active");
+    state.matrixMode = false;
     }
 
     if (e.key === " ") {
