@@ -1,476 +1,236 @@
-// --- DECLARAÇÕES ÚNICAS ---
-const container = document.querySelector(".container");
-const mainBtn = document.getElementById("mainBtn");
-const backBtn = document.getElementById("backBtn");
-const allCards = document.querySelectorAll(".card");
-const closeButtons = document.querySelectorAll(".close");
-const swipeSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
-swipeSound.volume = 0.2;
-const openSound = new Audio("https://www.fesliyanstudios.com/play-mp3/6677");
-const closeSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
-openSound.volume = 0.2;
-closeSound.volume = 0.2;
-const hoverSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
-hoverSound.volume = 0.05;
+/**
+ * Lucas Portfolio Core Engine
+ * Estruturado para performance e organização.
+ */
 
-let current = 0;
-let typingTimer;
-let isTyping = false;
-let matrixMode = false;
-let currentAudio = 0;
-let lastSoundTime = 0;
-let currentCardIndex = 0;   
-let lastHoverTime = 0;
-
-// --- SISTEMA DE SOM (Pool de Áudio) ---
-const audioPool = [];
-const poolSize = 5; 
-const typingSoundSrc = "https://www.fesliyanstudios.com/play-mp3/6";
-
-for (let i = 0; i < poolSize; i++) {
-    audioPool.push(new Audio(typingSoundSrc));
-}
-
-const terminal = document.getElementById("terminal");
-const terminalText = document.getElementById("terminalText");
-const lines = [
-    "> iniciando sistema...",
-    "> carregando módulos...",
-    "> acessando perfil...",
-    "> acesso autorizado ✔",
-    "> Seja bem-vindo ao meu mundo!"
-];
-
-let lineIndex = 0;
-let charIndex = 0;
-
-function typeTerminal() {
-    if (!terminal || !terminalText) return;
-
-    if (lineIndex < lines.length) {
-        if (charIndex < lines[lineIndex].length) {
-
-            terminalText.innerHTML += lines[lineIndex].charAt(charIndex);
-            charIndex++;
-
-            playTypingSound();
-            
-            setTimeout(typeTerminal, 30);
-
-        } else {
-            terminalText.innerHTML += "<br>";
-            lineIndex++;
-            charIndex = 0;
-
-            setTimeout(typeTerminal, 400);
-        }
-    } else {
-        setTimeout(() => {
-            terminal.style.opacity = "0";
-            setTimeout(() => {
-                terminal.style.display = "none";
-            }, 500);
-        }, 800);
-    }
-}
-
-
-function playTypingSound(speed = 50) {
-    const now = Date.now();
-    if (now - lastSoundTime < speed) return;
-    try {
-        const sound = audioPool[currentAudio];
-        sound.pause();
-        sound.currentTime = 0;
-
-        // 🔥 volume varia (mais humano)
-       sound.volume = Math.random() * 0.05 + 0.05;
-
-        // 🔥 velocidade do áudio acompanha digitação
-        sound.playbackRate = speed < 50 ? 1.3 : 0.9;
-
-        sound.play();
-
-        currentAudio = (currentAudio + 1) % poolSize;
-        lastSoundTime = now;
-    } catch(e){}
-}
-
-function stopTyping() {
-    clearTimeout(typingTimer);
-    isTyping = false;
-
-    // para TODOS os áudios
-    audioPool.forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-    });
-}
-
-// --- EFEITO DE DIGITAÇÃO ---
-// mapa de proximidade do teclado (simula erro humano real)
-const keyboardMap = {
-    a: "sqwz",
-    b: "vghn",
-    c: "xdfv",
-    d: "serfcx",
-    e: "wsdfr",
-    f: "drtgvc",
-    g: "ftyhbv",
-    h: "gyujnb",
-    i: "ujko",
-    j: "huikmn",
-    k: "jiolm",
-    l: "kop",
-    m: "njk",
-    n: "bhjm",
-    o: "iklp",
-    p: "ol",
-    q: "wa",
-    r: "edft",
-    s: "awedxz",
-    t: "rfgy",
-    u: "yhji",
-    v: "cfgb",
-    w: "qase",
-    x: "zsdc",
-    y: "tghu",
-    z: "asx"
+// --- CONFIGURAÇÃO & ESTADO ---
+const CONFIG = {
+    audio: {
+        typing: "https://www.fesliyanstudios.com/play-mp3/6",
+        swipe: "https://www.fesliyanstudios.com/play-mp3/387",
+        open: "https://www.fesliyanstudios.com/play-mp3/6677",
+        hover: "https://www.fesliyanstudios.com/play-mp3/387",
+        poolSize: 6
+    },
+    terminalLines: [
+        "> iniciando sistema...",
+        "> carregando módulos de UI...",
+        "> acessando perfil: LUCAS_BARBOSA...",
+        "> acesso autorizado ✔",
+        "> Bem-vindo ao Terminal v2.0"
+    ]
 };
 
-// pega uma letra errada baseada na correta
-function getTypo(char) {
-    const lower = char.toLowerCase();
-    if (keyboardMap[lower]) {
-        const opcoes = keyboardMap[lower];
-        return opcoes[Math.floor(Math.random() * opcoes.length)];
+const state = {
+    currentCardIndex: 0,
+    isTyping: false,
+    matrixMode: false,
+    typingTimer: null,
+    audioPool: [],
+    poolIndex: 0
+};
+
+// --- ELEMENTOS DOM ---
+const dom = {
+    container: document.querySelector(".container"),
+    bootScreen: document.getElementById("bootScreen"),
+    terminal: document.getElementById("terminal"),
+    terminalText: document.getElementById("terminalText"),
+    cards: document.querySelectorAll(".card"),
+    canvas: document.getElementById("particles"),
+    bgMusic: document.getElementById("bgMusic")
+};
+
+// --- INICIALIZAÇÃO DE ÁUDIO ---
+function initAudio() {
+    for (let i = 0; i < CONFIG.audio.poolSize; i++) {
+        state.audioPool.push(new Audio(CONFIG.audio.typing));
     }
-    return char;
 }
 
-function typeWriter(elemento) {
-    clearTimeout(typingTimer);
-    isTyping = true;
-
-    const textoOriginal = elemento.getAttribute('data-text') || elemento.innerHTML;
-
-    if (!elemento.getAttribute('data-text')) {
-        elemento.setAttribute('data-text', textoOriginal);
+function playSound(type, volume = 0.2) {
+    let sound;
+    switch(type) {
+        case 'typing':
+            sound = state.audioPool[state.poolIndex];
+            state.poolIndex = (state.poolIndex + 1) % CONFIG.audio.poolSize;
+            break;
+        case 'open': sound = new Audio(CONFIG.audio.open); break;
+        case 'swipe': sound = new Audio(CONFIG.audio.swipe); break;
+        case 'hover': sound = new Audio(CONFIG.audio.hover); volume = 0.05; break;
     }
+    if (sound) {
+        sound.volume = volume;
+        sound.play().catch(() => {});
+    }
+}
 
-    elemento.innerHTML = '';
-    elemento.classList.add("typing");
-
+// --- EFEITO TYPING (DIGITAÇÃO) ---
+function typeWriter(element, textOverride) {
+    clearTimeout(state.typingTimer);
+    state.isTyping = true;
+    
+    const text = textOverride || element.getAttribute('data-text') || element.innerHTML;
+    if (!element.getAttribute('data-text')) element.setAttribute('data-text', text);
+    
+    element.innerHTML = '';
+    element.classList.add("typing");
+    
     let i = 0;
-
-    function digitar() {
-        if (!elemento.isConnected) return;
-
-        // 🔥 FINALIZAÇÃO SEGURA
-        if (i >= textoOriginal.length) {
-            isTyping = false;
-            stopTyping();
-            elemento.classList.remove("typing");
-            return;
-        }
-
-        // 🔥 VELOCIDADE HUMANA (ANTES de usar!)
-        let progresso = i / textoOriginal.length;
-        let velocidade;
-
-        if (progresso < 0.2) {
-            velocidade = Math.random() * 80 + 80;
-        } else if (progresso < 0.8) {
-            velocidade = Math.random() * 40 + 20;
+    function type() {
+        if (i < text.length) {
+            if (text.slice(i, i + 4) === '<br>') {
+                element.innerHTML += '<br>';
+                i += 4;
+            } else {
+                element.innerHTML += text.charAt(i);
+                i++;
+                playSound('typing', 0.08);
+            }
+            state.typingTimer = setTimeout(type, Math.random() * 30 + 20);
         } else {
-            velocidade = Math.random() * 80 + 60;
+            state.isTyping = false;
+            element.classList.remove("typing");
         }
-
-        if (Math.random() < 0.08) velocidade += 120;
-
-        // 🔥 ERRO HUMANO
-        if (
-        Math.random() < 0.07 &&
-        i > 5 &&
-        textoOriginal.slice(i, i + 4) !== '<br>'
-        ) {
-
-            const letraCorreta = textoOriginal.charAt(i);
-            const letraErrada = getTypo(letraCorreta);
-
-            elemento.innerHTML += letraErrada;
-            playTypingSound(velocidade);
-
-            setTimeout(() => {
-                elemento.innerHTML = elemento.innerHTML.slice(0, -1);
-
-                setTimeout(() => {
-                    elemento.innerHTML += letraCorreta;
-                    i++;
-
-                    playTypingSound(velocidade);
-
-                    typingTimer = setTimeout(digitar, velocidade);
-                }, 120);
-
-            }, 180);
-
-            return;
-        }
-
-        // quebra de linha
-        if (textoOriginal.slice(i, i + 4) === '<br>') {
-            elemento.innerHTML += '<br>';
-            i += 4;
-        } else {
-            elemento.innerHTML += textoOriginal.charAt(i);
-            i++;
-            playTypingSound(velocidade);
-        }
-
-        typingTimer = setTimeout(digitar, velocidade);
     }
+    type();
+}
 
-    elemento.onclick = () => {
-        if (isTyping) {
-            stopTyping();
-            elemento.innerHTML = textoOriginal;
-            elemento.classList.remove("typing");
+// --- TERMINAL DE BOOT ---
+function runTerminal() {
+    dom.terminal.style.display = "flex";
+    let lineIdx = 0;
+    
+    function nextLine() {
+        if (lineIdx < CONFIG.terminalLines.length) {
+            const p = document.createElement('p');
+            dom.terminalText.appendChild(p);
+            
+            let charIdx = 0;
+            const currentLine = CONFIG.terminalLines[lineIdx];
+            
+            function typeChar() {
+                if (charIdx < currentLine.length) {
+                    p.textContent += currentLine[charIdx];
+                    charIdx++;
+                    playSound('typing', 0.1);
+                    setTimeout(typeChar, 20);
+                } else {
+                    lineIdx++;
+                    setTimeout(nextLine, 400);
+                }
+            }
+            typeChar();
+        } else {
+            setTimeout(() => {
+                dom.terminal.style.opacity = "0";
+                setTimeout(() => {
+                    dom.terminal.style.display = "none";
+                    dom.container.classList.remove("hidden");
+                }, 500);
+            }, 1000);
         }
-    };
-
-    digitar();
+    }
+    nextLine();
 }
 
 // --- MATRIX RAIN ---
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const ctx = dom.canvas.getContext("2d");
+let drops = [];
 
-let drops = Array(Math.floor(canvas.width / 16)).fill(1);
-ctx.font = "16px Orbitron";
-
+function initMatrix() {
+    dom.canvas.width = window.innerWidth;
+    dom.canvas.height = window.innerHeight;
+    drops = Array(Math.floor(dom.canvas.width / 16)).fill(1);
+}
 
 function drawMatrix() {
     ctx.fillStyle = "rgba(4, 4, 15, 0.1)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    if (!matrixMode) {
-    ctx.fillStyle = "#00ffff";
-} else {
-    if (currentCardIndex === 0) ctx.fillStyle = "#00ffff";
-    else if (currentCardIndex === 1) ctx.fillStyle = "#00ff88";
-    else if (currentCardIndex === 2) ctx.fillStyle = "#ffaa00";
-    else ctx.fillStyle = "#00ff46";
-}
-
+    ctx.fillRect(0, 0, dom.canvas.width, dom.canvas.height);
+    
+    ctx.fillStyle = state.matrixMode ? "#00ff88" : "#00ffff";
+    ctx.font = "16px Orbitron";
+    
     drops.forEach((y, i) => {
-        const text = Math.floor(Math.random() * 2);
-        ctx.fillText(text, i * 16, y * 16);
-        if (y * 16 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        const char = Math.random() > 0.5 ? "0" : "1";
+        ctx.fillText(char, i * 16, y * 16);
+        if (y * 16 > dom.canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
     });
 }
 
-function animate() {
-    drawMatrix();
-    requestAnimationFrame(animate);
+// --- GERENCIAMENTO DE CARDS ---
+function toggleCard(index, open = true) {
+    clearTimeout(state.typingTimer);
+    
+    if (open) {
+        playSound('open');
+        state.matrixMode = true;
+        dom.cards[index].classList.add("open");
+        const p = dom.cards[index].querySelector("p");
+        if (p) typeWriter(p);
+    } else {
+        state.matrixMode = false;
+        dom.cards.forEach(c => c.classList.remove("open"));
+    }
 }
-animate();
 
-function startMusic() {
-    const audio = document.getElementById("bgMusic");
+// --- EVENTOS ---
+function setupEventListeners() {
+    // Botão Start
+    document.getElementById("startBtn").onclick = () => {
+        dom.bootScreen.style.display = "none";
+        dom.bgMusic.volume = 0.2;
+        dom.bgMusic.play().catch(() => {});
+        runTerminal();
+    };
 
-    if (!audio) return;
-
-    audio.volume = 0.3;
-
-    audio.play().catch(() => {
-        console.log("Autoplay bloqueado pelo navegador");
-    });
-}
-// --- LOGICA DOS CARDS ---
-function showCard(index, abrirModal = false) {
-    stopTyping();
-    currentCardIndex = index;
-
-    document.body.classList.add("flash");
-    setTimeout(() => document.body.classList.remove("flash"), 150);
-
-    swipeSound.currentTime = 0;
-    swipeSound.play().catch(()=>{});
-
-    allCards.forEach(card => card.classList.remove("open"));
-
-    if (abrirModal) {
-        openSound.currentTime = 0;
-        openSound.play().catch(()=>{});
-
-        matrixMode = true;
-        container.classList.add("matrix-glitch");
-
-        setTimeout(() => container.classList.remove("matrix-glitch"), 200);
-
-        const cardAlvo = allCards[index];
-        cardAlvo.classList.add("open");
-
-        const paragrafo = cardAlvo.querySelector("p");
-        if (paragrafo) typeWriter(paragrafo);
-
-        // clicar no card pula digitação
-        cardAlvo.addEventListener("click", () => {
-            if (isTyping) {
-                const p = cardAlvo.querySelector("p");
-                if (p) {
-                    stopTyping();
-                    p.innerHTML = p.getAttribute('data-text');
-                    p.classList.remove("typing");
-                }
-            }
-        }, { once: true });
-
-        // evitar conflito botão fechar
-        cardAlvo.querySelector(".close")?.addEventListener("click", (e) => {
-            e.stopPropagation();
+    // Cards Click
+    dom.cards.forEach((card, idx) => {
+        card.addEventListener("click", () => {
+            if (!card.classList.contains("open")) toggleCard(idx, true);
         });
 
-        if (index === 1) skillTerminal();
-    }
-}
-const scanLine = document.querySelector(".scan-line");
-
-if (scanLine) {
-    scanLine.style.opacity = "1";
-    setTimeout(() => {
-        scanLine.style.opacity = "0.3";
-    }, 300);
-}
-
-document.querySelectorAll(".btn, .card").forEach(el => {
-    el.addEventListener("mouseenter", () => {
-        const now = Date.now();
-        if (now - lastHoverTime < 200) return;
-
-        hoverSound.currentTime = 0;
-        hoverSound.play().catch(()=>{});
-        lastHoverTime = now;
+        card.addEventListener("mouseenter", () => playSound('hover'));
     });
-});
-function skillTerminal() {
-    const spans = document.querySelectorAll(".skills span");
-    spans.forEach((span, index) => {
-        span.style.opacity = "0";
-        setTimeout(() => {
-            span.style.opacity = "1";
-            span.style.transition = "0.3s";
-        }, 100 * index);
+
+    // Fechar Cards
+    document.querySelectorAll(".close").forEach(btn => {
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            toggleCard(0, false);
+        };
     });
-}
 
-// --- EVENTOS E CLIQUES ---
-mainBtn.onclick = () => {
-    current = 0;
-    showCard(0, true);
-};
-
-document.getElementById("next").onclick = () => {
-    current = (current + 1) % allCards.length;
-    showCard(current, true);
-};
-
-document.getElementById("prev").onclick = () => {
-    current = (current - 1 + allCards.length) % allCards.length;
-    showCard(current, true);
-};
-
-closeButtons.forEach(btn => {
-    btn.onclick = (e) => {
-        e.stopPropagation();
-
-        stopTyping();
-
-        closeSound.currentTime = 0;
-        closeSound.play().catch(()=>{});
-
-        allCards.forEach(c => c.classList.remove("open"));
-        matrixMode = false;
-        currentCardIndex = 0;
+    // Navegação
+    document.getElementById("next").onclick = () => {
+        state.currentCardIndex = (state.currentCardIndex + 1) % dom.cards.length;
+        toggleCard(0, false);
+        toggleCard(state.currentCardIndex, true);
     };
-});
 
-backBtn.onclick = () => {
-    window.location.reload();
-};
+    document.getElementById("prev").onclick = () => {
+        state.currentCardIndex = (state.currentCardIndex - 1 + dom.cards.length) % dom.cards.length;
+        toggleCard(0, false);
+        toggleCard(state.currentCardIndex, true);
+    };
 
-// --- LOADER (UNICO) ---
-const startBtn = document.getElementById("startBtn");
-const bootScreen = document.getElementById("bootScreen");
-let bootIndex = 0;
+    // Botão Back (Recarregar)
+    document.getElementById("backBtn").onclick = () => location.reload();
 
-startBtn.onclick = async () => {
+    // Resize
+    window.onresize = initMatrix;
+}
 
-    startMusic();
-
-    bootScreen.classList.add("boot-glitch");
-
-    setTimeout(() => {
-        bootScreen.classList.remove("boot-glitch");
-    }, 200);
-
-    startBtn.style.display = "none";
-
-    setTimeout(() => {
-        enterSite();
-    }, 600);
-};
-
-function typeBoot(){
-    if(bootIndex < bootLines.length){
-
-        let line = bootLines[bootIndex];
-        let i = 0;
-
-        let interval = setInterval(()=>{
-
-            bootText.innerHTML += line.charAt(i);
-            i++;
-
-            if(i >= line.length){
-                clearInterval(interval);
-                bootText.innerHTML += "<br>";
-                bootIndex++;
-                setTimeout(typeBoot, 300);
-            }
-
-        }, 30);
-
-    } else {
-
-        setTimeout(()=>{
-            enterSite();
-        }, 500);
+// --- START ---
+window.onload = () => {
+    initAudio();
+    initMatrix();
+    setupEventListeners();
+    
+    function animate() {
+        drawMatrix();
+        requestAnimationFrame(animate);
     }
-}
-
-function enterSite(){
-
-    bootScreen.style.opacity = "0";
-
-    setTimeout(()=>{
-        bootScreen.style.display = "none";
-
-        container.classList.remove("hidden");
-
-        // 👇 MOSTRA o terminal aqui
-        terminal.style.display = "flex";
-
-        typeTerminal();
-
-    },500);
-}
-
-window.addEventListener("resize", () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    drops = Array(Math.floor(canvas.width / 16)).fill(1);
-});
+    animate();
+};
