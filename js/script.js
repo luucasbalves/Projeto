@@ -474,4 +474,3 @@ window.addEventListener("resize", () => {
     canvas.height = window.innerHeight;
     drops = Array(Math.floor(canvas.width / 16)).fill(1);
 });
-
