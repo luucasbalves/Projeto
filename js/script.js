@@ -308,6 +308,35 @@ function initApp() {
     });
 
     window.onresize = initMatrix;
+document.addEventListener("keydown", (e) => {
+
+    const isOpen = document.querySelector(".card.open");
+    if (!isOpen) return;
+
+    if (e.key === "ArrowRight") {
+        dom.nextBtn.click();
+    }
+
+    if (e.key === "ArrowLeft") {
+        dom.prevBtn.click();
+    }
+
+    if (e.key === "Escape") {
+        dom.overlay.click();
+    }
+
+    if (e.key === " ") {
+        e.preventDefault();
+
+        const p = document.querySelector(".card.open p");
+
+        if (p && state.isTyping) {
+            stopAllTypingSounds();
+            p.innerHTML = p.getAttribute("data-text");
+            p.classList.remove("typing");
+        }
+    }
+});
 }
     dom.navArrows.classList.remove("active");
 initApp();
