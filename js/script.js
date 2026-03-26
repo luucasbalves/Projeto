@@ -18,6 +18,7 @@ const dom = {
     canvas: document.getElementById("particles"),
     nextBtn: document.getElementById("next"),
     prevBtn: document.getElementById("prev")
+    overlay: document.getElementById("modalOverlay"),
 };
 
 // --- CONFIGURAÇÃO DE ÁUDIO ---
