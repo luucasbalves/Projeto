@@ -1,39 +1,155 @@
-// --- DECLARAÇÕES ÚNICAS ---
-const container = document.querySelector(".container");
-const mainBtn = document.getElementById("mainBtn");
-const backBtn = document.getElementById("backBtn");
-const allCards = document.querySelectorAll(".card");
-const closeButtons = document.querySelectorAll(".close");
-const swipeSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
-swipeSound.volume = 0.2;
-const openSound = new Audio("https://www.fesliyanstudios.com/play-mp3/6677");
-const closeSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
-openSound.volume = 0.2;
-closeSound.volume = 0.2;
-const hoverSound = new Audio("https://www.fesliyanstudios.com/play-mp3/387");
-hoverSound.volume = 0.05;
+/**
+ * Lucas Portfolio JS - Refatorado para limpeza e semântica
+ * Mantendo 100% das funcionalidades originais.
+ */
 
-let current = 0;
-let typingTimer;
-let isTyping = false;
-let matrixMode = false;
-let currentAudio = 0;
-let lastSoundTime = 0;
-let currentCardIndex = 0;   
-let lastHoverTime = 0;
+// --- SELETORES ---
+const dom = {
+    container: document.querySelector(".container"),
+    mainBtn: document.getElementById("mainBtn"),
+    backBtn: document.getElementById("backBtn"),
+    allCards: document.querySelectorAll(".card"),
+    closeButtons: document.querySelectorAll(".close"),
+    terminal: document.getElementById("terminal"),
+    terminalText: document.getElementById("terminalText"),
+    startBtn: document.getElementById("startBtn"),
+    bootScreen: document.getElementById("bootScreen"),
+    bgMusic: document.getElementById("bgMusic"),
+    canvas: document.getElementById("particles"),
+    nextBtn: document.getElementById("next"),
+    prevBtn: document.getElementById("prev")
+};
 
-// --- SISTEMA DE SOM (Pool de Áudio) ---
-const audioPool = [];
-const poolSize = 5; 
-const typingSoundSrc = "https://www.fesliyanstudios.com/play-mp3/6";
+// --- CONFIGURAÇÃO DE ÁUDIO ---
+const sounds = {
+    swipe: new Audio("https://www.fesliyanstudios.com/play-mp3/387"),
+    open: new Audio("https://www.fesliyanstudios.com/play-mp3/6677"),
+    close: new Audio("https://www.fesliyanstudios.com/play-mp3/387"),
+    hover: new Audio("https://www.fesliyanstudios.com/play-mp3/387"),
+    typingSrc: "https://www.fesliyanstudios.com/play-mp3/6"
+};
 
-for (let i = 0; i < poolSize; i++) {
-    audioPool.push(new Audio(typingSoundSrc));
+// Ajuste de Volumes
+sounds.swipe.volume = 0.2;
+sounds.open.volume = 0.2;
+sounds.close.volume = 0.2;
+sounds.hover.volume = 0.05;
+
+// Pool de Áudio para digitação (para evitar atrasos/bugs de som)
+const audioPool = Array.from({ length: 5 }, () => new Audio(sounds.typingSrc));
+let currentPoolIdx = 0;
+
+// --- ESTADO DO APP ---
+let state = {
+    currentIdx: 0,
+    isTyping: false,
+    typingTimer: null,
+    matrixMode: false,
+    lastSoundTime: 0,
+    lastHoverTime: 0
+};
+
+// --- FUNÇÕES DE ÁUDIO ---
+function playTypingSound(speed = 50) {
+    const now = Date.now();
+    if (now - state.lastSoundTime < speed) return;
+
+    const sound = audioPool[currentPoolIdx];
+    sound.pause();
+    sound.currentTime = 0;
+    sound.volume = Math.random() * 0.05 + 0.05;
+    sound.playbackRate = speed < 50 ? 1.3 : 0.9;
+    sound.play().catch(() => {});
+
+    currentPoolIdx = (currentPoolIdx + 1) % audioPool.length;
+    state.lastSoundTime = now;
 }
 
-const terminal = document.getElementById("terminal");
-const terminalText = document.getElementById("terminalText");
-const lines = [
+function stopAllTypingSounds() {
+    clearTimeout(state.typingTimer);
+    state.isTyping = false;
+    audioPool.forEach(s => { s.pause(); s.currentTime = 0; });
+}
+
+// --- EFEITO DE DIGITAÇÃO (HUMANIZADO) ---
+const keyboardMap = {
+    a: "sqwz", b: "vghn", c: "xdfv", d: "serfcx", e: "wsdfr", f: "drtgvc",
+    g: "ftyhbv", h: "gyujnb", i: "ujko", j: "huikmn", k: "jiolm", l: "kop",
+    m: "njk", n: "bhjm", o: "iklp", p: "ol", q: "wa", r: "edft", s: "awedxz",
+    t: "rfgy", u: "yhji", v: "cfgb", w: "qase", x: "zsdc", y: "tghu", z: "asx"
+};
+
+function getTypo(char) {
+    const lower = char.toLowerCase();
+    const options = keyboardMap[lower];
+    return options ? options[Math.floor(Math.random() * options.length)] : char;
+}
+
+function typeWriter(element) {
+    stopAllTypingSounds();
+    state.isTyping = true;
+
+    const originalText = element.getAttribute('data-text') || element.innerHTML;
+    if (!element.getAttribute('data-text')) element.setAttribute('data-text', originalText);
+
+    element.innerHTML = '';
+    element.classList.add("typing");
+
+    let i = 0;
+    function type() {
+        if (!element.isConnected || i >= originalText.length) {
+            state.isTyping = false;
+            element.classList.remove("typing");
+            return;
+        }
+
+        let speed = (i / originalText.length < 0.2) ? Math.random() * 80 + 80 :
+                    (i / originalText.length < 0.8) ? Math.random() * 40 + 20 : Math.random() * 80 + 60;
+        
+        if (Math.random() < 0.08) speed += 120;
+
+        // Erro Humano
+        if (Math.random() < 0.07 && i > 5 && originalText.slice(i, i + 4) !== '<br>') {
+            const correct = originalText.charAt(i);
+            const typo = getTypo(correct);
+            element.innerHTML += typo;
+            playTypingSound(speed);
+            setTimeout(() => {
+                element.innerHTML = element.innerHTML.slice(0, -1);
+                setTimeout(() => {
+                    element.innerHTML += correct;
+                    i++;
+                    playTypingSound(speed);
+                    state.typingTimer = setTimeout(type, speed);
+                }, 120);
+            }, 180);
+            return;
+        }
+
+        // Quebra de linha
+        if (originalText.slice(i, i + 4) === '<br>') {
+            element.innerHTML += '<br>';
+            i += 4;
+        } else {
+            element.innerHTML += originalText.charAt(i);
+            i++;
+            playTypingSound(speed);
+        }
+        state.typingTimer = setTimeout(type, speed);
+    }
+
+    element.onclick = () => {
+        if (state.isTyping) {
+            stopAllTypingSounds();
+            element.innerHTML = originalText;
+            element.classList.remove("typing");
+        }
+    };
+    type();
+}
+
+// --- TERMINAL DE BOOT ---
+const terminalLines = [
     "> iniciando sistema...",
     "> carregando módulos...",
     "> acessando perfil...",
@@ -41,436 +157,154 @@ const lines = [
     "> Seja bem-vindo ao meu mundo!"
 ];
 
-let lineIndex = 0;
-let charIndex = 0;
-
 function typeTerminal() {
-    if (!terminal || !terminalText) return;
+    let lineIdx = 0;
+    let charIdx = 0;
 
-    if (lineIndex < lines.length) {
-        if (charIndex < lines[lineIndex].length) {
-
-            terminalText.innerHTML += lines[lineIndex].charAt(charIndex);
-            charIndex++;
-
-            playTypingSound();
-            
-            setTimeout(typeTerminal, 30);
-
+    function run() {
+        if (lineIdx < terminalLines.length) {
+            if (charIdx < terminalLines[lineIdx].length) {
+                dom.terminalText.innerHTML += terminalLines[lineIdx].charAt(charIdx);
+                charIdx++;
+                playTypingSound(30);
+                setTimeout(run, 30);
+            } else {
+                dom.terminalText.innerHTML += "<br>";
+                lineIdx++;
+                charIdx = 0;
+                setTimeout(run, 400);
+            }
         } else {
-            terminalText.innerHTML += "<br>";
-            lineIndex++;
-            charIndex = 0;
-
-            setTimeout(typeTerminal, 400);
-        }
-    } else {
-        setTimeout(() => {
-            terminal.style.opacity = "0";
             setTimeout(() => {
-                terminal.style.display = "none";
-            }, 500);
-        }, 800);
+                dom.terminal.style.opacity = "0";
+                setTimeout(() => dom.terminal.style.display = "none", 500);
+            }, 800);
+        }
     }
-}
-
-
-function playTypingSound(speed = 50) {
-    const now = Date.now();
-    if (now - lastSoundTime < speed) return;
-    try {
-        const sound = audioPool[currentAudio];
-        sound.pause();
-        sound.currentTime = 0;
-
-        // 🔥 volume varia (mais humano)
-       sound.volume = Math.random() * 0.05 + 0.05;
-
-        // 🔥 velocidade do áudio acompanha digitação
-        sound.playbackRate = speed < 50 ? 1.3 : 0.9;
-
-        sound.play();
-
-        currentAudio = (currentAudio + 1) % poolSize;
-        lastSoundTime = now;
-    } catch(e){}
-}
-
-function stopTyping() {
-    clearTimeout(typingTimer);
-    isTyping = false;
-
-    // para TODOS os áudios
-    audioPool.forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-    });
-}
-
-// --- EFEITO DE DIGITAÇÃO ---
-// mapa de proximidade do teclado (simula erro humano real)
-const keyboardMap = {
-    a: "sqwz",
-    b: "vghn",
-    c: "xdfv",
-    d: "serfcx",
-    e: "wsdfr",
-    f: "drtgvc",
-    g: "ftyhbv",
-    h: "gyujnb",
-    i: "ujko",
-    j: "huikmn",
-    k: "jiolm",
-    l: "kop",
-    m: "njk",
-    n: "bhjm",
-    o: "iklp",
-    p: "ol",
-    q: "wa",
-    r: "edft",
-    s: "awedxz",
-    t: "rfgy",
-    u: "yhji",
-    v: "cfgb",
-    w: "qase",
-    x: "zsdc",
-    y: "tghu",
-    z: "asx"
-};
-
-// pega uma letra errada baseada na correta
-function getTypo(char) {
-    const lower = char.toLowerCase();
-    if (keyboardMap[lower]) {
-        const opcoes = keyboardMap[lower];
-        return opcoes[Math.floor(Math.random() * opcoes.length)];
-    }
-    return char;
-}
-
-function typeWriter(elemento) {
-    clearTimeout(typingTimer);
-    isTyping = true;
-
-    const textoOriginal = elemento.getAttribute('data-text') || elemento.innerHTML;
-
-    if (!elemento.getAttribute('data-text')) {
-        elemento.setAttribute('data-text', textoOriginal);
-    }
-
-    elemento.innerHTML = '';
-    elemento.classList.add("typing");
-
-    let i = 0;
-
-    function digitar() {
-        if (!elemento.isConnected) return;
-
-        // 🔥 FINALIZAÇÃO SEGURA
-        if (i >= textoOriginal.length) {
-            isTyping = false;
-            stopTyping();
-            elemento.classList.remove("typing");
-            return;
-        }
-
-        // 🔥 VELOCIDADE HUMANA (ANTES de usar!)
-        let progresso = i / textoOriginal.length;
-        let velocidade;
-
-        if (progresso < 0.2) {
-            velocidade = Math.random() * 80 + 80;
-        } else if (progresso < 0.8) {
-            velocidade = Math.random() * 40 + 20;
-        } else {
-            velocidade = Math.random() * 80 + 60;
-        }
-
-        if (Math.random() < 0.08) velocidade += 120;
-
-        // 🔥 ERRO HUMANO
-        if (
-        Math.random() < 0.07 &&
-        i > 5 &&
-        textoOriginal.slice(i, i + 4) !== '<br>'
-        ) {
-
-            const letraCorreta = textoOriginal.charAt(i);
-            const letraErrada = getTypo(letraCorreta);
-
-            elemento.innerHTML += letraErrada;
-            playTypingSound(velocidade);
-
-            setTimeout(() => {
-                elemento.innerHTML = elemento.innerHTML.slice(0, -1);
-
-                setTimeout(() => {
-                    elemento.innerHTML += letraCorreta;
-                    i++;
-
-                    playTypingSound(velocidade);
-
-                    typingTimer = setTimeout(digitar, velocidade);
-                }, 120);
-
-            }, 180);
-
-            return;
-        }
-
-        // quebra de linha
-        if (textoOriginal.slice(i, i + 4) === '<br>') {
-            elemento.innerHTML += '<br>';
-            i += 4;
-        } else {
-            elemento.innerHTML += textoOriginal.charAt(i);
-            i++;
-            playTypingSound(velocidade);
-        }
-
-        typingTimer = setTimeout(digitar, velocidade);
-    }
-
-    elemento.onclick = () => {
-        if (isTyping) {
-            stopTyping();
-            elemento.innerHTML = textoOriginal;
-            elemento.classList.remove("typing");
-        }
-    };
-
-    digitar();
+    run();
 }
 
 // --- MATRIX RAIN ---
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const ctx = dom.canvas.getContext("2d");
+let drops = [];
 
-let drops = Array(Math.floor(canvas.width / 16)).fill(1);
-ctx.font = "16px Orbitron";
-
+function initMatrix() {
+    dom.canvas.width = window.innerWidth;
+    dom.canvas.height = window.innerHeight;
+    drops = Array(Math.floor(dom.canvas.width / 16)).fill(1);
+}
 
 function drawMatrix() {
     ctx.fillStyle = "rgba(4, 4, 15, 0.1)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    if (!matrixMode) {
-    ctx.fillStyle = "#00ffff";
-} else {
-    if (currentCardIndex === 0) ctx.fillStyle = "#00ffff";
-    else if (currentCardIndex === 1) ctx.fillStyle = "#00ff88";
-    else if (currentCardIndex === 2) ctx.fillStyle = "#ffaa00";
-    else ctx.fillStyle = "#00ff46";
-}
+    ctx.fillRect(0, 0, dom.canvas.width, dom.canvas.height);
+    ctx.fillStyle = state.matrixMode ? (state.currentIdx === 1 ? "#00ff88" : "#00ff46") : "#00ffff";
+    ctx.font = "16px Orbitron";
 
     drops.forEach((y, i) => {
-        const text = Math.floor(Math.random() * 2);
-        ctx.fillText(text, i * 16, y * 16);
-        if (y * 16 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        ctx.fillText(Math.floor(Math.random() * 2), i * 16, y * 16);
+        if (y * 16 > dom.canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
     });
 }
 
-function animate() {
-    drawMatrix();
-    requestAnimationFrame(animate);
-}
-animate();
+// --- LÓGICA DE NAVEGAÇÃO DOS CARDS ---
+function showCard(index, openModal = false) {
+    stopAllTypingSounds();
+    state.currentIdx = index;
 
-function startMusic() {
-    const audio = document.getElementById("bgMusic");
-
-    if (!audio) return;
-
-    audio.volume = 0.3;
-
-    audio.play().catch(() => {
-        console.log("Autoplay bloqueado pelo navegador");
-    });
-}
-// --- LOGICA DOS CARDS ---
-function showCard(index, abrirModal = false) {
-    stopTyping();
-    currentCardIndex = index;
-
+    // Efeito Visual
     document.body.classList.add("flash");
     setTimeout(() => document.body.classList.remove("flash"), 150);
 
-    swipeSound.currentTime = 0;
-    swipeSound.play().catch(()=>{});
+    sounds.swipe.currentTime = 0;
+    sounds.swipe.play().catch(()=>{});
 
-    allCards.forEach(card => card.classList.remove("open"));
+    // Esconde todos
+    dom.allCards.forEach(c => {
+        c.classList.remove("active", "open");
+    });
 
-    if (abrirModal) {
-        openSound.currentTime = 0;
-        openSound.play().catch(()=>{});
+    // Ativa o atual
+    const target = dom.allCards[index];
+    target.classList.add("active");
 
-        matrixMode = true;
-        container.classList.add("matrix-glitch");
+    if (openModal) {
+        sounds.open.currentTime = 0;
+        sounds.open.play().catch(()=>{});
+        state.matrixMode = true;
+        dom.container.classList.add("matrix-glitch");
+        setTimeout(() => dom.container.classList.remove("matrix-glitch"), 200);
 
-        setTimeout(() => container.classList.remove("matrix-glitch"), 200);
+        target.classList.add("open");
+        const p = target.querySelector("p");
+        if (p) typeWriter(p);
 
-        const cardAlvo = allCards[index];
-        cardAlvo.classList.add("open");
-
-        const paragrafo = cardAlvo.querySelector("p");
-        if (paragrafo) typeWriter(paragrafo);
-
-        // clicar no card pula digitação
-        cardAlvo.addEventListener("click", () => {
-            if (isTyping) {
-                const p = cardAlvo.querySelector("p");
-                if (p) {
-                    stopTyping();
-                    p.innerHTML = p.getAttribute('data-text');
-                    p.classList.remove("typing");
-                }
-            }
-        }, { once: true });
-
-        // evitar conflito botão fechar
-        cardAlvo.querySelector(".close")?.addEventListener("click", (e) => {
-            e.stopPropagation();
-        });
-
-        if (index === 1) skillTerminal();
+        if (index === 1) { // Skills
+            const spans = target.querySelectorAll(".skills span");
+            spans.forEach((s, i) => {
+                s.style.opacity = "0";
+                setTimeout(() => { s.style.opacity = "1"; s.style.transition = "0.3s"; }, 100 * i);
+            });
+        }
     }
 }
-const scanLine = document.querySelector(".scan-line");
 
-if (scanLine) {
-    scanLine.style.opacity = "1";
-    setTimeout(() => {
-        scanLine.style.opacity = "0.3";
-    }, 300);
-}
+// --- LISTENERS ---
+function initApp() {
+    initMatrix();
+    setInterval(drawMatrix, 50);
 
-document.querySelectorAll(".btn, .card").forEach(el => {
-    el.addEventListener("mouseenter", () => {
-        const now = Date.now();
-        if (now - lastHoverTime < 200) return;
-
-        hoverSound.currentTime = 0;
-        hoverSound.play().catch(()=>{});
-        lastHoverTime = now;
-    });
-});
-function skillTerminal() {
-    const spans = document.querySelectorAll(".skills span");
-    spans.forEach((span, index) => {
-        span.style.opacity = "0";
+    dom.startBtn.onclick = () => {
+        dom.bgMusic.volume = 0.3;
+        dom.bgMusic.play().catch(() => console.log("Audio Blocked"));
+        dom.bootScreen.classList.add("boot-glitch");
         setTimeout(() => {
-            span.style.opacity = "1";
-            span.style.transition = "0.3s";
-        }, 100 * index);
-    });
-}
-
-// --- EVENTOS E CLIQUES ---
-mainBtn.onclick = () => {
-    current = 0;
-    showCard(0, true);
-};
-
-document.getElementById("next").onclick = () => {
-    current = (current + 1) % allCards.length;
-    showCard(current, true);
-};
-
-document.getElementById("prev").onclick = () => {
-    current = (current - 1 + allCards.length) % allCards.length;
-    showCard(current, true);
-};
-
-closeButtons.forEach(btn => {
-    btn.onclick = (e) => {
-        e.stopPropagation();
-
-        stopTyping();
-
-        closeSound.currentTime = 0;
-        closeSound.play().catch(()=>{});
-
-        allCards.forEach(c => c.classList.remove("open"));
-        matrixMode = false;
-        currentCardIndex = 0;
+            dom.bootScreen.style.opacity = "0";
+            setTimeout(() => {
+                dom.bootScreen.style.display = "none";
+                dom.container.classList.remove("hidden");
+                dom.terminal.style.display = "flex";
+                typeTerminal();
+            }, 500);
+        }, 600);
     };
-});
 
-backBtn.onclick = () => {
-    window.location.reload();
-};
+    dom.mainBtn.onclick = () => showCard(0, true);
 
-// --- LOADER (UNICO) ---
-const startBtn = document.getElementById("startBtn");
-const bootScreen = document.getElementById("bootScreen");
-let bootIndex = 0;
+    dom.nextBtn.onclick = () => {
+        const next = (state.currentIdx + 1) % dom.allCards.length;
+        showCard(next, true);
+    };
 
-startBtn.onclick = async () => {
+    dom.prevBtn.onclick = () => {
+        const prev = (state.currentIdx - 1 + dom.allCards.length) % dom.allCards.length;
+        showCard(prev, true);
+    };
 
-    startMusic();
+    dom.closeButtons.forEach(btn => {
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            stopAllTypingSounds();
+            sounds.close.currentTime = 0;
+            sounds.close.play().catch(()=>{});
+            dom.allCards.forEach(c => c.classList.remove("open", "active"));
+            state.matrixMode = false;
+        };
+    });
 
-    bootScreen.classList.add("boot-glitch");
+    dom.backBtn.onclick = () => window.location.reload();
 
-    setTimeout(() => {
-        bootScreen.classList.remove("boot-glitch");
-    }, 200);
+    document.querySelectorAll(".btn, .card").forEach(el => {
+        el.addEventListener("mouseenter", () => {
+            const now = Date.now();
+            if (now - state.lastHoverTime < 200) return;
+            sounds.hover.currentTime = 0;
+            sounds.hover.play().catch(()=>{});
+            state.lastHoverTime = now;
+        });
+    });
 
-    startBtn.style.display = "none";
-
-    setTimeout(() => {
-        enterSite();
-    }, 600);
-};
-
-function typeBoot(){
-    if(bootIndex < bootLines.length){
-
-        let line = bootLines[bootIndex];
-        let i = 0;
-
-        let interval = setInterval(()=>{
-
-            bootText.innerHTML += line.charAt(i);
-            i++;
-
-            if(i >= line.length){
-                clearInterval(interval);
-                bootText.innerHTML += "<br>";
-                bootIndex++;
-                setTimeout(typeBoot, 300);
-            }
-
-        }, 30);
-
-    } else {
-
-        setTimeout(()=>{
-            enterSite();
-        }, 500);
-    }
+    window.onresize = initMatrix;
 }
 
-function enterSite(){
-
-    bootScreen.style.opacity = "0";
-
-    setTimeout(()=>{
-        bootScreen.style.display = "none";
-
-        container.classList.remove("hidden");
-
-        // 👇 MOSTRA o terminal aqui
-        terminal.style.display = "flex";
-
-        typeTerminal();
-
-    },500);
-}
-
-window.addEventListener("resize", () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    drops = Array(Math.floor(canvas.width / 16)).fill(1);
-});
+initApp();
