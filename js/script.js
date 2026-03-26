@@ -297,21 +297,9 @@ function initApp() {
         };
     });
 
-    dom.backBtn.onclick = () => {
+   dom.backBtn.onclick = () => {
     location.reload();
     };
-    dom.navArrows.classList.remove("active");
-
-    dom.allCards.forEach(c => c.classList.remove("open", "active"));
-
-    state.currentIdx = 0;
-    state.matrixMode = false;
-
-    dom.container.classList.add("hidden");
-
-    dom.bootScreen.style.display = "flex";
-    dom.bootScreen.style.opacity = "1";
-};
 
     document.querySelectorAll(".btn, .card").forEach(el => {
         el.addEventListener("mouseenter", () => {
@@ -372,5 +360,4 @@ document.addEventListener("keydown", (e) => {
     }
 });
 }
-    dom.navArrows.classList.remove("active");
 initApp();
