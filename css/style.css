@@ -46,6 +46,20 @@ body {
     100% { transform: translateY(100%); }
 }
 
+/* --- Audio --- */
+
+#soundControl {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid cyan;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 9999;
+}
+
 /* --- BOOT SCREEN --- */
 #bootScreen {
     position: fixed;
