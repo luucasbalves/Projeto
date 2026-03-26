@@ -18,6 +18,7 @@ const dom = {
     canvas: document.getElementById("particles"),
     nextBtn: document.getElementById("next"),
     prevBtn: document.getElementById("prev"),
+    soundControl: document.getElementById("soundControl"),
     navArrows: document.querySelector(".nav-arrows")
 };
 
@@ -51,6 +52,7 @@ let state = {
 };
 
 // --- FUNÇÕES DE ÁUDIO ---
+let isMuted = false;
 function playTypingSound(speed = 50) {
     const now = Date.now();
     if (now - state.lastSoundTime < speed) return;
@@ -295,7 +297,20 @@ function initApp() {
         };
     });
 
-    dom.backBtn.onclick = () => window.location.reload();
+    dom.backBtn.onclick = () => {
+    dom.overlay.classList.remove("active");
+    dom.navArrows.classList.remove("active");
+
+    dom.allCards.forEach(c => c.classList.remove("open", "active"));
+
+    state.currentIdx = 0;
+    state.matrixMode = false;
+
+    dom.container.classList.add("hidden");
+
+    dom.bootScreen.style.display = "flex";
+    dom.bootScreen.style.opacity = "1";
+};
 
     document.querySelectorAll(".btn, .card").forEach(el => {
         el.addEventListener("mouseenter", () => {
@@ -306,7 +321,20 @@ function initApp() {
             state.lastHoverTime = now;
         });
     });
+    
+    dom.soundControl.onclick = () => {
+    isMuted = !isMuted;
 
+    dom.bgMusic.muted = isMuted;
+
+    Object.values(sounds).forEach(s => {
+        if (s instanceof Audio) s.muted = isMuted;
+    });
+
+    audioPool.forEach(a => a.muted = isMuted);
+
+    dom.soundControl.innerHTML = isMuted ? "🔇" : "🔊";
+};
     window.onresize = initMatrix;
 document.addEventListener("keydown", (e) => {
 
