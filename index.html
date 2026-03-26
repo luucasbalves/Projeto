@@ -1,146 +1,112 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucas | Portfólio</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1055/1055687.png">
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>Lucas | Portfólio</title>
+
+<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1055/1055687.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
-    <!-- Camadas de Efeito de Fundo -->
-    <canvas id="particles" aria-hidden="true"></canvas>
-    <div class="scan-line" aria-hidden="true"></div>
+<div id="terminal">
+  <div class="terminal-text" id="terminalText"></div>
+</div>
 
-    <!-- Overlay de Sistema (Boot & Terminal) -->
-    <div id="bootScreen" class="overlay-full">
-        <div class="boot-content">
-            <h1 class="boot-title">Hello World!</h1>
-            <button id="startBtn" class="btn-cyber">INICIAR SISTEMA</button>
-        </div>
-    </div>
+<div id="bootScreen">
 
-    <div id="terminal" class="overlay-full">
-        <div class="terminal-text" id="terminalText"></div>
-    </div>
+  <div class="boot-content">
+    <h1 class="boot-title">Hellouoooo Word!</h1>
 
-    <!-- Conteúdo Principal -->
-    <main class="container hidden">
-        <header class="profile-header">
-            <h1 class="logo">Lucas Barbosa Alves</h1>
-            <p class="tag">Desenvolvedor • Estudante • Tech Lover</p>
-        </header>
+    <button id="startBtn">INICIAR SISTEMA</button>
+  </div>
 
-        <nav class="btnArea">
-            <button id="mainBtn" class="btn">Conheça um pouco sobre mim <span>→</span></button>
-            <button id="backBtn" class="btn">Voltar <span>↺</span></button>
-        </nav>
+</div>
 
-        <section class="cards-grid" id="cards">
-            <!-- Card: Sobre -->
-            <article class="card">
-                <header class="card-header">
-                    <h3 class="card-title"><span class="icon-dev">👨‍💻</span> Sobre</h3> 
-                </header>
-                <div class="content">
-                    <p>Oiiii, me chamo Lucas, sou natural de Brusque–SC. Desde cedo sempre tive grande interesse por tecnologia, mas ao longo dos anos acabei deixando essa paixão em segundo plano para assumir responsabilidades pessoais.<br><br> Hoje, aos 26 anos, retorno com determinação total para a área que sempre foi meu sonho. Sou comprometido, com facilidade em aprender e meu objetivo é ingressar de vez nesse setor para ampliar meu conhecimento e contribuir com soluções inovadoras.</p>
-                    <button class="close">Fechar</button>
-                </div>
-            </article>
+<canvas id="particles"></canvas>
 
-            <!-- Card: Skills -->
-            <article class="card">
-                <header class="card-header">
-                    <h3 class="card-title"><span class="icon-bolt">⚡</span> Skills</h3>
-                </header>
-                <div class="content">
-                    <div class="skills-list">
-                        <span>HTML</span>
-                        <span>CSS</span>
-                        <span>JavaScript</span>
-                        <span>Git</span>
-                        <span>UI Design</span>
-                    </div>
-                    <button class="close">Fechar</button>
-                </div>
-            </article>
+<div class="container hidden">
 
-            <!-- Card: Formação -->
-            <article class="card">
-                <header class="card-header">
-                    <h3 class="card-title"><span class="icon-book">📚</span> Formação</h3>
-                </header>
-                <div class="content">
-                    <p>Estudante de Engenharia de Software.</p>
-                    <button class="close">Fechar</button>
-                </div>
-            </article>
+<h1 class="logo">Lucas Barbosa Alves</h1>
+<p class="tag">Desenvolvedor • Estudante • Tech Lover</p>
 
-            <!-- Card: Objetivo -->
-            <article class="card">
-                <header class="card-header">
-                    <h3 class="card-title"><span class="icon-rocket">🚀</span> Objetivo</h3>
-                </header>
-                <div class="content">
-                    <p>Entrar na área tech e crescer profissionalmente desenvolvendo sistemas robustos e interativos.</p>
-                    <button class="close">Fechar</button>
-                </div>
-            </article>
+<div class="btnArea">
+<button id="mainBtn" class="btn">Conheça um pouco sobre mim <span>→</span></button>
+<button id="backBtn" class="btn">Voltar <span>↺</span></button>
+</div>
 
-            <!-- Card: Projetos -->
-            <article class="card">
-                <header class="card-header">
-                    <h3 class="card-title"><span class="icon-folder">📂</span> Projetos</h3>
-                </header>
-                <div class="content">
-                    <p>Projetos web interativos em desenvolvimento. Confira meu GitHub para mais detalhes.</p>
-                    <button class="close">Fechar</button>
-                </div>
-            </article>
+<div class="cards" id="cards">
 
-            <!-- Card: Contato -->
-            <article class="card">
-                <header class="card-header">
-                    <h3 class="card-title">📩 Contato</h3>
-                </header>
-                <div class="content">
-                    <p>E-mail: Lucas._alves@hotmail.com</p>
-                    <a href="https://wa.me/5547991724416" target="_blank" class="wpp-link">
-                        <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp Icon">
-                        WhatsApp
-                    </a>
-                    <button class="close">Fechar</button>
-                </div>
-            </article>
-        </section>
-    </main>
+<div class="card">
+    <h3 class="card-title"><span class="icon-dev">👨‍💻</span> Sobre</h3> 
 
-    <!-- Navegação e Flutuantes -->
+    <div class="content">
+<p>Oiiii, me chamo Lucas, sou natural de Brusque–SC, desde cedo sempre tive grande interesse por tecnologia, mas ao longo dos anos acabei deixando essa paixão em segundo plano para assumir responsabilidades pessoais.<br> Hoje, aos 26 anos, retorno com determinação total para a área que sempre foi meu sonho seguir. Tenho buscado essa trajetória com dedicação e persistência, estudando continuamente e desenvolvendo minhas habilidades.<br> Sou uma pessoa comprometida, com facilidade em aprender e lidar com tecnologias, e meu objetivo é ingressar de vez nesse setor para ampliar cada vez mais meu conhecimento e contribuir com melhorias constantes em processos e soluções para aqueles com quem trabalho.</p>
+<button class="close">Fechar</button>
+</div></div>
+
+<div class="card">
+  <h3 class="card-title"><span class="icon-bolt">⚡</span> Skills</h3>
+<div class="content">
+<div class="skills">
+<span>HTML</span>
+<span>CSS</span>
+<span>JavaScript</span>
+<span>Git</span>
+<span>UI Design</span>
+</div>
+<button class="close">Fechar</button>
+</div></div>
+
+<div class="card">
+  <h3 class="card-title"><span class="icon-book">📚</span>Formação</h3>
+<div class="content">
+<p>Estudante de Engenharia de Software.</p>
+<button class="close">Fechar</button>
+</div></div>
+
+<div class="card">
+  <h3 class="card-title"><span class="icon-rocket">🚀</span> Objetivo</h3>
+<div class="content">
+<p>Entrar na área tech e crescer profissionalmente desenvolvendo sistemas.</p>
+<button class="close">Fechar</button>
+</div></div>
+
+<div class="card">
+  <h3 class="card-title"><span class="icon-folder">📂</span> Projetos</h3>
+<div class="content">
+<p>Projetos web interativos em desenvolvimento.</p>
+<button class="close">Fechar</button>
+</div></div>
+
+<div class="card">
+  <h3 class="card-title">📩 Contato </h3><br><br>
+<div class="content">
+  <p>Email : Lucas._alves@hotmail.com </p>
+<a href="https://wa.me/5547991724416" target="_blank" class="wpp">
+<img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
+WhatsApp</a>
+<button class="close">Fechar</button>
+</div></div>
+
+</div>
+</div>
     <div class="nav-arrows">
-        <button id="prev" aria-label="Anterior">←</button>
-        <button id="next" aria-label="Próximo">→</button>
+    <button id="prev">←</button>
+    <button id="next">→</button>
     </div>
-
     <a href="https://wa.me/5547991724416" target="_blank" class="contact-fixed">
-        💬 Fale comigo
+💬 Fale comigo
     </a>
 
-    <!-- Assets de Áudio -->
-    <audio id="bgMusic" loop>
-        <source src="audio.mp3" type="audio/mpeg">
-    </audio>
-
-    <!-- Scripts -->
-    <script src="js/script.js"></script>
+<audio id="typing-sound" src="https://www.fesliyanstudios.com/play-mp3/6" preload="auto"></audio>
+<div class="scan-line"></div>   
+<script src="js/script.js"></script>
+<audio id="bgMusic" loop>
+  <source src="audio.mp3" type="audio/mpeg">
+</audio>
 </body>
 </html>
