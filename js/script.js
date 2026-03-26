@@ -289,6 +289,7 @@ function initApp() {
             stopAllTypingSounds();
             sounds.close.currentTime = 0;
             sounds.close.play().catch(()=>{});
+            dom.allCards.forEach(c => c.classList.remove("open", "active"));
             dom.navArrows.classList.remove("active")
             state.matrixMode = false;
         };
